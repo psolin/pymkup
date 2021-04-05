@@ -62,3 +62,5 @@ target/
 # Pycharm
 .idea
 .test.py.icloud
+tests/test.py
+*.pdf
