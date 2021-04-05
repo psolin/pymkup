@@ -64,3 +64,4 @@ target/
 .test.py.icloud
 tests/test.py
 *.pdf
+test.py
