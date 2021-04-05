@@ -14,7 +14,7 @@ x = pymkup("link to your pdf")
 
 x.check_BB() # Sees if the document was authored by Revu
 x.get_page_labels() # Returns all of the page labels and their sheet numbers
-x.get_markups_list() # Returns all of the markups in
+x.get_markups_list() # Returns all of the markups in the file across all sheets
 x.get_markups_index() # A list of pages / markup primary keys
 x.get_columns() # Returns master column/property fields on all annotations
 x.get_spaces() # Pulls a dictionary of all of the spaces in the document
