@@ -1,6 +1,6 @@
 # pymkup
 
-pyMkup is a Python library for viewing markups lists and propery data in PDFs created by Bluebeam Revu.
+pymkup is a Python library for viewing markups lists and propery data in PDFs created by Bluebeam Revu.
 
 ## About
 
