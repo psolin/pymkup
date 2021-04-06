@@ -38,11 +38,11 @@ class pymkup:
 
     # Extracting the entire markups list
     def get_markups_list(self):
-        markups_list = []
+        markups_list = {}
         for idx, page in enumerate(self.template_pdf.pages):
             try:
                 for num, annotation in enumerate(page.Annots):
-                    markups_list.append(annotation)
+                    markups_list[num] = annotation
             except:
                 pass
         return(markups_list)
