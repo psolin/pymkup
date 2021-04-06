@@ -33,7 +33,7 @@ class pymkup:
                     page_count += 1
         except:
             for idx, page in enumerate(self.template_pdf.pages):
-                page_label_dict[idx] = str(idx+1)
+                page_label_dict[idx] = "Page " + str(idx+1)
         return(page_label_dict)
 
     # Extracting the entire markups list
@@ -199,15 +199,33 @@ class pymkup:
         spaces = self.get_spaces()
         page_labels = self.get_page_labels()
         spaces_tree = Tree()
-        spaces_tree.create_node(self.file_name, self.file_name)
+        #Add PDF name as top node
+        spaces_tree.create_node(self.file_name, self.file_name)     
 
-        # Add pages nodes
+        #Add pages nodes
         for key, value in page_labels.items():
             spaces_tree.create_node(value, value, parent=self.file_name)
 
-        # Add spaces nodes - top level only for now
-        for space in spaces:
-            spaces_tree.create_node(
-                spaces[space].Title[1:-1], spaces[space].Title[1:-1] + str(space), parent=page_labels[space])
+        #Add spaces nodes
+        for idx, space in enumerate(spaces):
+            try:
+                #This is way too much. Can support spaces 4 deep.
+                spaces_tree.create_node(
+                    spaces[idx].Title[1:-1], spaces[idx].Title[1:-1] + str(space), parent=page_labels[idx])
+
+                for kid in spaces[space].Kids:
+                    spaces_tree.create_node(
+                    kid.Title[1:-1], kid.Title[1:-1] + str(space), parent=spaces[space].Title[1:-1] + str(space))
+
+                for kid in spaces[space].Kids[0].Kids:
+                    spaces_tree.create_node(
+
+                for kid in spaces[space].Kids.Kids[0].Kids:
+                    spaces_tree.create_node(
+                    kid.Title[1:-1], kid.Title[1:-1] + str(space), parent=spaces[space].Kids[0].Kids.Title[1:-1] + str(space))
+                
+            except:
+                pass
+            
 
         return(spaces_tree)
