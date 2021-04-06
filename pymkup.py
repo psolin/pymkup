@@ -74,8 +74,9 @@ class pymkup:
                     spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
                 except:
                     pass
-            markup_spaces[markup.NM[1:-1]] = spaces_list
-            spaces_list = []
+            if len(spaces_list) > 0:
+                markup_spaces[markup.NM[1:-1]] = spaces_list
+                spaces_list = []
         return(markup_spaces)
 
     # Extracting the current document's column/property lists
