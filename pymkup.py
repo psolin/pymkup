@@ -63,6 +63,8 @@ class pymkup:
         markup_spaces = {}
         spaces_list = []
         for markup in markups:
+            #print(markups[markup].P.BSISpaces[0])
+            #print(markups[markup].NM)
             if markups[markup].P.BSISpaces:
                 try:
                     #This is way too much. Can support spaces 6 deep.
@@ -74,9 +76,9 @@ class pymkup:
                     spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
                 except:
                     pass
-                markup_spaces[markups[markup].NM[1:-1]] = spaces_list
-            else:
-                pass
+            #[i for n, i in enumerate(spaces_list) if i not in spaces_list[:n]]
+            markup_spaces[markups[markup].NM[1:-1]] = spaces_list
+            spaces_list = []
         return(markup_spaces)
 
     # Extracting the current document's column/property lists
