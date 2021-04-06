@@ -53,7 +53,7 @@ class pymkup:
         for idx, page in enumerate(self.template_pdf.pages):
             try:
                 for num, annotation in enumerate(page.Annots):
-                    markups_index[annotation.NM[1:-1]] = idx
+                    markups_index[annotation.NM[1:-1]] = annotation
             except:
                 pass
         return(markups_index)
@@ -63,7 +63,7 @@ class pymkup:
         markup_spaces = {}
         spaces_list = []
         for markup in markups:
-            if(markups[markup].P.BSISpaces[0]):
+            if markups[markup].P.BSISpaces:
                 try:
                     #This is way too much. Can support spaces 6 deep.
                     spaces_list.append(markups[markup].P.BSISpaces[0].Title[1:-1])
@@ -74,7 +74,9 @@ class pymkup:
                     spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
                 except:
                     pass
-            markup_spaces[markups[markup].NM[1:-1]] = spaces_list
+                markup_spaces[markups[markup].NM[1:-1]] = spaces_list
+            else:
+                pass
         return(markup_spaces)
 
     # Extracting the current document's column/property lists
