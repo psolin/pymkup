@@ -38,11 +38,11 @@ class pymkup:
 
     # Extracting the entire markups list
     def get_markups_list(self):
-        markups_list = {}
+        markups_list = []
         for idx, page in enumerate(self.template_pdf.pages):
             try:
                 for num, annotation in enumerate(page.Annots):
-                    markups_list[num] = annotation
+                    markups_list.append(annotation)
             except:
                 pass
         return(markups_list)
@@ -63,21 +63,18 @@ class pymkup:
         markup_spaces = {}
         spaces_list = []
         for markup in markups:
-            #print(markups[markup].P.BSISpaces[0])
-            #print(markups[markup].NM)
-            if markups[markup].P.BSISpaces:
+            if markup.P.BSISpaces:
                 try:
                     #This is way too much. Can support spaces 6 deep.
-                    spaces_list.append(markups[markup].P.BSISpaces[0].Title[1:-1])
-                    spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markups[markup].P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+                    spaces_list.append(markup.P.BSISpaces[0].Title[1:-1])
+                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Title[1:-1])
+                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Title[1:-1])
+                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
                 except:
                     pass
-            #[i for n, i in enumerate(spaces_list) if i not in spaces_list[:n]]
-            markup_spaces[markups[markup].NM[1:-1]] = spaces_list
+            markup_spaces[markup.NM[1:-1]] = spaces_list
             spaces_list = []
         return(markup_spaces)
 
