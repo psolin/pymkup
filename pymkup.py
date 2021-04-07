@@ -239,7 +239,6 @@ class pymkup:
             try:
                 for item in spaces[space][0].Kids:
                     pk = list[item.Title, space]
-                    print(item.Title[1:-1])
                     spaces_tree.create_node(
                         item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
                     if item.Kids is not None:

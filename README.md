@@ -12,13 +12,14 @@ This is a reverse-engineered unofficial API for accessing data generated in Blue
 from pymkup import pymkup
 x = pymkup("link to your pdf")
 
-x.check_BB() # Sees if the document was authored by Revu
-x.get_page_labels() # Returns all of the page labels and their sheet numbers
-x.get_markups_list() # Returns all of the markups in the file across all sheets
-x.get_markups_index() # A list of pages / markup primary keys
-x.get_columns() # Returns master column/property fields on all annotations
-x.get_spaces() # Pulls a dictionary of all of the spaces in the document
-x.spaces_tree() # creates a page label / spaces tree (unfinished)
+x.check_BB() # Checks if the document was authored by Revu
+x.get_page_labels() # Returns page labels/"Page X" formats
+x.get_markups_list() # A dump of all markups in a PDFDict object
+x.get_markups_index() # A list of pages and markups by primary keys
+x.markup_space() # A list of all markups by pk and a list of spaces associated
+x.get_columns() # Returns master column/property fields list on all annotations
+x.get_spaces() # A dump of all spaces in a PDFDict object
+x.spaces_tree() # Generates a page label / spaces tree 3 levels (unfinished)
 ```
 
 ## Contributing
