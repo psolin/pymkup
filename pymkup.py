@@ -21,19 +21,19 @@ class pymkup:
     # Extract the page labels into a dictionary
     def get_page_labels(self):
         page_label_dict = {}
+        #This will work if there are any page labels
         try:
-            page_labels = self.template_pdf.Root.PageLabels.Nums
-            page_count = 0
-            for i in range(1, len(page_labels), 2):
+            page_num_list = self.template_pdf.Root.PageLabels.Nums
+            for idx, page in enumerate(page_num_list[1::2]):
                 try:
-                    page_label_dict[page_count] = page_labels[i].P[1:-1]
-                    page_count += 1
+                    page_label_dict[idx] = page.P[1:-1]
                 except:
-                    page_label_dict[page_count] = str(idx)
-                    page_count += 1
+                    page_label_dict[idx] = "Page " + str(idx + 1)
+        #Otherwise, do a mass naming scheme
         except:
             for idx, page in enumerate(self.template_pdf.pages):
-                page_label_dict[idx] = "Page " + str(idx+1)
+                page_label_dict[idx] = "Page " + str(idx + 1)
+
         return(page_label_dict)
 
     # Extracting the entire markups list
@@ -65,7 +65,7 @@ class pymkup:
         for markup in markups:
             if markup.P.BSISpaces:
                 try:
-                    #This is way too much. Can support spaces 6 deep.
+                    #This is way too much. Can support spaces 6 deep...
                     spaces_list.append(markup.P.BSISpaces[0].Title[1:-1])
                     spaces_list.append(markup.P.BSISpaces[0].Kids[0].Title[1:-1])
                     spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Title[1:-1])
@@ -186,13 +186,17 @@ class pymkup:
             return(content)
 
     def get_spaces(self):
+        space_list = []
         space_dict = {}
         for idx, page in enumerate(self.template_pdf.pages):
             try:
                 for space in page.BSISpaces:
-                    space_dict[idx] = space
+                    #print(space)
+                    space_list.append(space)
             except:
                 pass
+            space_dict[idx] = space_list
+            space_list = []
         return(space_dict)
 
     def spaces_tree(self):
@@ -206,26 +210,59 @@ class pymkup:
         for key, value in page_labels.items():
             spaces_tree.create_node(value, value, parent=self.file_name)
 
-        #Add spaces nodes
-        for idx, space in enumerate(spaces):
+        for space in spaces:
+            #This is way too much. Can support spaces 3 deep. More to come.
+
+            #Loop all first space title
+ 
             try:
-                #This is way too much. Can support spaces 4 deep.
-                spaces_tree.create_node(
-                    spaces[idx].Title[1:-1], spaces[idx].Title[1:-1] + str(space), parent=page_labels[idx])
-
-                for kid in spaces[space].Kids:
+                for item in spaces[space]:
+                    pk = list[item.Title, space]
                     spaces_tree.create_node(
-                    kid.Title[1:-1], kid.Title[1:-1] + str(space), parent=spaces[space].Title[1:-1] + str(space))
-
-                for kid in spaces[space].Kids[0].Kids:
-                    spaces_tree.create_node(
-
-                for kid in spaces[space].Kids.Kids[0].Kids:
-                    spaces_tree.create_node(
-                    kid.Title[1:-1], kid.Title[1:-1] + str(space), parent=spaces[space].Kids[0].Kids.Title[1:-1] + str(space))
-                
+                            item.Title[1:-1], pk, parent=page_labels[space])
             except:
                 pass
-            
+
+            try:
+                for item in spaces[space]:
+                    if item.Kids is not None:
+                         for kid in item.Kids:
+                            pk = list[spaces[space].Title, space]
+                            spaces_tree.create_node(
+                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
+                    else:
+                        pk = list[spaces[space].Title, space]
+                        spaces_tree.create_node(
+                            item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
+            except:
+                pass
+
+            try:
+                for item in spaces[space][0].Kids:
+                    if item.Kids is not None:
+                         for kid in item.Kids:
+                            pk = list[kid.Title, space]
+                            spaces_tree.create_node(
+                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
+                    else:
+                        pk = list[item.Title, space]
+                        spaces_tree.create_node(
+                            item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
+            except:
+                pass
+
+            try:
+                for item in spaces[space][0].Kids[0].Kids:
+                    if item.Kids is not None:
+                         for kid in item.Kids:
+                            pk = list[kid.Title, space]
+                            spaces_tree.create_node(
+                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
+                    else:
+                        pk = list[item.Title, space]
+                        spaces_tree.create_node(
+                            item.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
+            except:
+                pass
 
         return(spaces_tree)
