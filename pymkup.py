@@ -224,44 +224,44 @@ class pymkup:
                 pass
 
             try:
-                for item in spaces[space]:
+                for item in spaces[space][0].Kids:
+                    pk = list[spaces[space][0].Title, space]
+                    spaces_tree.create_node(
+                        item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
                     if item.Kids is not None:
-                         for kid in item.Kids:
+                        for kid in item.Kids:
                             pk = list[spaces[space].Title, space]
                             spaces_tree.create_node(
                             kid.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
-                    else:
-                        pk = list[spaces[space].Title, space]
-                        spaces_tree.create_node(
-                            item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
             except:
                 pass
 
             try:
                 for item in spaces[space][0].Kids:
+                    pk = list[item.Title, space]
+                    print(item.Title[1:-1])
+                    spaces_tree.create_node(
+                        item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
                     if item.Kids is not None:
-                         for kid in item.Kids:
+                        for kid in item.Kids:
                             pk = list[kid.Title, space]
                             spaces_tree.create_node(
-                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
-                    else:
-                        pk = list[item.Title, space]
-                        spaces_tree.create_node(
-                            item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
+                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Spaces[0].Title, space])
             except:
                 pass
 
             try:
                 for item in spaces[space][0].Kids[0].Kids:
+                    pk = list[item.Title, space]
+                    spaces_tree.create_node(
+                        item.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
+                    '''
                     if item.Kids is not None:
-                         for kid in item.Kids:
+                        for kid in item.Kids:
                             pk = list[kid.Title, space]
                             spaces_tree.create_node(
-                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
-                    else:
-                        pk = list[item.Title, space]
-                        spaces_tree.create_node(
-                            item.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
+                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Kids[0].Title, space])
+                    '''
             except:
                 pass
 
