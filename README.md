@@ -23,7 +23,7 @@ x.spaces_tree() # Generates a page label / spaces tree 3 levels (unfinished)
 ```
 
 ### Example output of spaces_tree() with test4.pdf
-```python
+```
 test4
 ├── A101
 │   ├── Level 1
