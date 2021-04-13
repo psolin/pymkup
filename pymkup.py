@@ -5,6 +5,7 @@ from pdfrw.findobjs import find_objects
 from pdfrw import PdfReader
 from treelib import Node, Tree
 from pathlib import Path
+import csv
 
 
 class pymkup:
@@ -58,26 +59,21 @@ class pymkup:
                 pass
         return(markups_index)
 
-    def markup_space(self):
-        markups = self.get_markups_list()
+    def markup_space(self, markup):
         markup_spaces = {}
         spaces_list = []
-        for markup in markups:
-            if markup.P.BSISpaces:
-                try:
-                    #This is way too much. Can support spaces 6 deep...
-                    spaces_list.append(markup.P.BSISpaces[0].Title[1:-1])
-                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                    spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                except:
-                    pass
-            if len(spaces_list) > 0:
-                markup_spaces[markup.NM[1:-1]] = spaces_list
-                spaces_list = []
-        return(markup_spaces)
+        if markup.P.BSISpaces:
+            try:
+                #This is way too much. Can support spaces 6 deep...
+                spaces_list.append(markup.P.BSISpaces[0].Title[1:-1])
+                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Title[1:-1])
+                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Title[1:-1])
+                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+            except:
+                pass
+        return(spaces_list)
 
     # Extracting the current document's column/property lists
     # I probably missed some various properties.
@@ -93,7 +89,7 @@ class pymkup:
         columns_lookup['/M'] = "Date"  # Technically "modified" date
 
         # These are hidden properties
-        columns_lookup['/NM'] = "NM"  # Primary Key for Markup
+        columns_lookup['/NM'] = "PK"  # Primary Key for Markup
         # Groupings by primary key and subject (>1)
         columns_lookup['/GroupNesting'] = 'Group Nesting'
         columns_lookup['/Type'] = 'Type'  # Annotation (markup) or otherwise
@@ -124,7 +120,8 @@ class pymkup:
         columns_lookup['/SlopeType'] = 'Slope Type'
         # Related to pitch and run, slope properties
         columns_lookup['/PitchRun'] = 'PitchRun'
-        columns_lookup['/DepthUnit'] = "Depth"
+        columns_lookup['/DepthUnit'] = "Depth Unit"
+        columns_lookup['/Depth'] = "Depth"
         # Start/End Line Cap in Length Measurement
         columns_lookup['/LE'] = 'Length Caps'
         # Line Width in Length Measurement
@@ -149,15 +146,18 @@ class pymkup:
 
         # Taking the current column list across pages in the file and putting it into in a dictionary
         column_list = []
+        column_dict = {}
         for page in range(0, len(self.template_pdf.pages)):
-            for columns in self.template_pdf.pages[page].Annots[0]:
-                column_list.append(columns)
+            try:
+                for columns in self.template_pdf.pages[page].Annots[0]:
+                    column_list.append(columns)
+            except:
+                return(column_dict)
 
         # Remove dupes
         [i for n, i in enumerate(column_list) if i not in column_list[:n]]
 
         # Create dictionary with original name and corrected names
-        column_dict = {}
         for column in column_list:
             column_dict[column] = columns_lookup[column]
 
@@ -191,7 +191,6 @@ class pymkup:
         for idx, page in enumerate(self.template_pdf.pages):
             try:
                 for space in page.BSISpaces:
-                    #print(space)
                     space_list.append(space)
             except:
                 pass
@@ -199,7 +198,7 @@ class pymkup:
             space_list = []
         return(space_dict)
 
-    def spaces_tree(self):
+    def spaces_hierarchy(self, output):
         spaces = self.get_spaces()
         page_labels = self.get_page_labels()
         spaces_tree = Tree()
@@ -257,10 +256,86 @@ class pymkup:
                         item.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
                     if item.Kids is not None:
                         for kid in item.Kids:
-                            print(item.Title[1:-1])
                             spaces_tree.create_node(
                             kid.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Kids[0].Title, space])
             except:
                 pass
 
-        return(spaces_tree)
+        if output == "tree":
+            return(spaces_tree)
+        elif output == "hierarchy":
+            #Getting a master space hierarchy by column
+            #Max depth starts calculating outside the doc name and sheet name
+            max_depth = max([len(i) for i in spaces_tree.paths_to_leaves()]) - 2
+            space_depth = []
+            for level in range(max_depth):
+                space_depth.append("Space " + str(level + 1))
+            
+            #Create the dictionary to hold the values
+            space_dict = {} 
+            for idx, level in enumerate(space_depth):
+                space_dict[level] = []
+            
+            #Loop through all space items
+            for item in spaces_tree.paths_to_leaves():
+                for level, space in enumerate(item[2:]):
+                    res = list(space_dict.keys())[level]
+                    if str(space)[7:-6] not in space_dict[res]:
+                        space_dict[res].append(str(space)[7:-6])
+            return(space_dict)
+        elif output == "dictionary":
+            # Return the Python dictionary
+            return(spaces_tree.to_dict())
+
+    def csv_export(self, column_list):
+        if column_list == "default":
+            chosen_columns = {
+            '/Subj': 'Subject', 
+            '/CreationDate': 'Creation Date', 
+            '/Label': 'Label', 
+            '/T': 'Author', 
+            '/OC': 'Layers', 
+            '/M': 'Date'}
+        else:
+            chosen_columns = {}
+            all_columns = self.get_columns()
+
+        spaces = self.spaces_hierarchy(output="hierarchy")
+            
+        for item in column_list:
+            for idx in all_columns:
+                if(all_columns[idx] == item):
+                    chosen_columns[idx] = item
+            #Handle spaces
+            if(item == "Spaces"):
+                num_space_col = len(spaces.keys())
+                #print(num_space_col)
+                for space in spaces.keys():
+                    chosen_columns[space] = space        
+
+        chosen_columns_keys = list(chosen_columns.keys())
+
+        with open(self.file_name + '.csv', mode='w') as csv_file:
+            csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            #Write the header row
+            csv_writer.writerow(list(chosen_columns.values()))
+
+            #Pull the data out
+            for markup in self.get_markups_list():
+                #Fresh row
+                row = []
+                for column in chosen_columns_keys:
+                    try:
+                        if(column == '/OC'):
+                            row.append(markup[column].Name[1:-1])
+                        #This is not iterating correctly
+                        elif("Space " in column):
+                            for space in self.markup_space(markup):
+                                row.append(space)
+                        else:
+                            row.append(markup[column][1:-1])
+                    except:
+                        row.append("")
+                csv_writer.writerow(row)
+
+        return()
