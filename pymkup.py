@@ -211,10 +211,9 @@ class pymkup:
             spaces_tree.create_node(value, value, parent=self.file_name)
 
         for space in spaces:
-            #This is way too much. Can support spaces 3 deep. More to come.
+            #This is way too much. Can support spaces 3 deep.
 
-            #Loop all first space title
- 
+            #Level 1
             try:
                 for item in spaces[space]:
                     pk = list[item.Title, space]
@@ -236,6 +235,7 @@ class pymkup:
             except:
                 pass
 
+            #Level 2
             try:
                 for item in spaces[space][0].Kids:
                     pk = list[item.Title, space]
@@ -249,18 +249,17 @@ class pymkup:
             except:
                 pass
 
+            #Level 3
             try:
                 for item in spaces[space][0].Kids[0].Kids:
                     pk = list[item.Title, space]
                     spaces_tree.create_node(
                         item.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
-                    '''
                     if item.Kids is not None:
                         for kid in item.Kids:
-                            pk = list[kid.Title, space]
+                            print(item.Title[1:-1])
                             spaces_tree.create_node(
                             kid.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Kids[0].Title, space])
-                    '''
             except:
                 pass
 
