@@ -22,6 +22,23 @@ x.get_spaces() # A dump of all spaces in a PDFDict object
 x.spaces_tree() # Generates a page label / spaces tree 3 levels (unfinished)
 ```
 
+### Example output of spaces_tree() with test4.pdf
+```python
+test4
+├── A101
+│   ├── Level 1
+│   │   └── Area A
+│   │       ├── Room 101
+│   │       ├── Room 102
+│   │       └── Room 103
+│   └── Sub Level
+└── Page 2
+    └── Level 1
+        └── Area B
+            ├── Room 151
+            └── Room 152
+```
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
