@@ -19,8 +19,9 @@ x.get_markups_index() # A list of pages and markups by primary keys
 x.markup_space() # A list of all spaces in a given markup.
 x.get_columns() # Returns master column/property fields list on all annotations
 x.get_spaces() # A dump of all spaces in a PDFDict object
-x.spaces_hierarchy(output="dictionary") # Generates a spaces tree dictionary three levels deep.
-x.spaces_hierarchy(output="hierarchy") # Generates a spaces tree hierarchy for the columns list.
+x.spaces_hierarchy(output="dictionary") # Generates a spaces dictionary three levels deep.
+x.spaces_hierarchy(output="hierarchy") # Generates a spaces hierarchy for use in the columns list.
+x.spaces_hierarchy(output="tree") # Generates a spaces tree.
 x.csv_export(column_list="dictionary") # Exports a CSV file with columns in default order.
 ```
 
@@ -43,11 +44,6 @@ x.csv_export(column_list=columns)
 ```
 
 ### Example output of spaces tree ("test4.pdf")
-
-```python
-x.spaces_hierarchy(output="Tree")
-print(x)
-```
 
 ```
 test4
