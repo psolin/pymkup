@@ -36,6 +36,7 @@ test4
     └── Level 1
         └── Area B
             ├── Room 151
+            │   └── Sub-Room
             └── Room 152
 ```
 
