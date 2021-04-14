@@ -166,8 +166,8 @@ class pymkup:
     def IT_convert(self, markup):
         IT_dict = {}
         IT_dict['/PolygonCount'] = "Polygon Count"
-        IT_dict['/PolyLineDimension'] = "Poly Line Dimension"
-        IT_dict['//LineDimension'] = "Line Dimension"
+        IT_dict['/PolyLineDimension'] = "PolyLine Dimension"
+        IT_dict['/LineDimension'] = "Line Dimension"
         return(IT_dict[markup])
 
     # /MeasurementTypes conversion to something more meaningful
