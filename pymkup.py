@@ -6,6 +6,8 @@ from pdfrw import PdfReader
 from treelib import Node, Tree
 from pathlib import Path
 import csv
+from time import mktime, strptime
+from datetime import datetime
 
 class pymkup:
     def __init__(self, file):
@@ -358,7 +360,8 @@ class pymkup:
                             row.append(markup[column].Name[1:-1])
                         elif(column == '/IT'):
                             row.append(self.IT_convert(markup[column]))
-                        elif(column == '/Type' or 
+                        elif(
+                            column == '/Type' or 
                             column == '/CountStyle' or 
                             column == '/Subtype'):
                             row.append(markup[column][1:])
@@ -384,6 +387,13 @@ class pymkup:
                             row.append(self.content_hex_convert(markup[column]))
                         elif(column == '/AP'):
                             row.append(markup[column].N)
+                        elif(
+                            column == '/CreationDate' or
+                            column == '/M'):
+                            datestring = markup[column][3:-8]
+                            ts = strptime(datestring, "%Y%m%d%H%M%S")
+                            dt = datetime.fromtimestamp(mktime(ts))
+                            row.append(dt)
                         elif(column == '/MeasurementTypes'):
                             row.append(self.measurement_types_convert(int(markup[column])))
                         #This is not iterating correctly
