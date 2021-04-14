@@ -6,6 +6,7 @@ from pdfrw import PdfReader
 from treelib import Node, Tree
 from pathlib import Path
 import csv
+import re
 
 
 class pymkup:
@@ -87,6 +88,7 @@ class pymkup:
         # Optional Content Group as "Name" key
         columns_lookup['/OC'] = "Layers"
         columns_lookup['/M'] = "Date"  # Technically "modified" date
+        columns_lookup['/Contents'] = "Comments"  # Hex text comment
 
         # These are hidden properties
         columns_lookup['/NM'] = "PK"  # Primary Key for Markup
@@ -102,19 +104,20 @@ class pymkup:
         # The count of the larger group where the markup is nested
         columns_lookup['/NumCounts'] = "NumCounts"
         columns_lookup['/IT'] = "IT"  # Type of counting (measurement)
-        columns_lookup['/Contents'] = "Contents"  # Hex text comment
 
         # Properties
         # Scale where the markup falls and the multiplier
         columns_lookup['/BBMeasure'] = "BBMeasure"
+        # Describes the XObjects
+        columns_lookup['/AP'] = 'AP'
         # Measurement Properties
         columns_lookup['/MeasurementTypes'] = 'Measurement Types'
         columns_lookup['/Measure'] = 'Measure'  # Measurement Properties
         columns_lookup['/RC'] = "Rich Text"  # Segment Rich Text Appearance
-        columns_lookup['/CA'] = "CA"  # Opacity Property
+        columns_lookup['/CA'] = "Opacity"  # Opacity Property
         columns_lookup['/CountScale'] = 'Scale'  # Scale Property
         # Custom columns options and selections
-        columns_lookup['/BSIColumnData'] = "BSI Column Data"
+        columns_lookup['/BSIColumnData'] = "BSIColumnData"
         columns_lookup['/DS'] = "DS"  # Caption font and style
         # Area Mesurement/Length Measurement
         columns_lookup['/SlopeType'] = 'Slope Type'
@@ -130,8 +133,6 @@ class pymkup:
         columns_lookup['/L'] = 'Length Box'
 
         # These are hidden/unknown columns to me
-        # Follows the markups (seconds in between marking up?)
-        columns_lookup['/AP'] = 'AP'
         columns_lookup['/P'] = "P"  # All of the data combined
         # This may be if something is checked or not
         columns_lookup['/F'] = "F"
@@ -163,27 +164,43 @@ class pymkup:
 
         return(column_dict)
 
+    #Converts /IT column
+    def IT_convert(self, markup):
+        IT_dict = {}
+        IT_dict['/PolygonCount'] = "Polygon Count"
+        IT_dict['/PolyLineDimension'] = "Poly Line Dimension"
+        IT_dict['//LineDimension'] = "Line Dimension"
+        return(IT_dict[markup])
+
     # /MeasurementTypes conversion to something more meaningful
-    def measurement_types_convert(type_num):
+    def measurement_types_convert(self, markup):
         measurement_types = {}
-        measurement_types[128] = "count"
-        measurement_types[129] = "shape"
-        measurement_types[130] = "length"
-        measurement_types[132] = "volume"
-        measurement_types[384] = "diameter"
-        measurement_types[1152] = "angle"
-        return(measurement_types)
+        measurement_types[128] = "Count"
+        measurement_types[129] = "Shape"
+        measurement_types[130] = "Length"
+        measurement_types[132] = "Volume"
+        measurement_types[384] = "Diameter"
+        measurement_types[1152] = "Angle"
+        return(measurement_types[markup])
 
     # /Contents conversion into something more meaningful
-    def content_hex_convert(content):
+    def content_hex_convert(self, content):
         try:
             if ("feff" in content):
-                content = str(content[5:-1])
-                # remove breaks
-                content = content.replace("000d00", "002000")
-                return(bytes.fromhex(content).decode('utf-8'))
+                content = content.decode_hex()
+                content = content.decode('utf-16')
+                content = content.splitlines()[1]
         except:
-            return(content)
+            pass
+
+        if(content[0] == "("):
+            content = content[1:-1]
+
+        if(len(content) == 1):
+            content = ""
+
+        return(content)
+
 
     def get_spaces(self):
         space_list = []
@@ -295,10 +312,11 @@ class pymkup:
             '/Label': 'Label', 
             '/T': 'Author', 
             '/OC': 'Layers', 
-            '/M': 'Date'}
+            '/M': 'Date',
+            '/Contents': 'Comments'}
         else:
             chosen_columns = {}
-            all_columns = self.get_columns()
+        all_columns = self.get_columns()
 
         spaces = self.spaces_hierarchy(output="hierarchy")
             
@@ -328,6 +346,36 @@ class pymkup:
                     try:
                         if(column == '/OC'):
                             row.append(markup[column].Name[1:-1])
+                        elif(column == '/IT'):
+                            row.append(self.IT_convert(markup[column]))
+                        elif(column == '/Type' or 
+                            column == '/CountStyle' or 
+                            column == '/Subtype'):
+                            row.append(markup[column][1:])
+                        elif(
+                            column == '/NumCounts' or
+                            column == '/Version' or
+                            column == '/GroupNesting' or
+                            column == '/Version' or
+                            column == '/F' or
+                            column == '/BS' or
+                            column == '/IC' or
+                            column == '/DS' or
+                            column == '/BSIColumnData' or
+                            column == '/Vertices' or
+                            column == '/Rect' or
+                            column == '/Version' or
+                            column == '/BBMeasure' or
+                            column == '/CA'):
+                            row.append(markup[column])
+                        elif(column == '/DepthUnit'):
+                            row.append(markup[column][0])
+                        elif(column == '/Contents'):
+                            row.append(self.content_hex_convert(markup[column]))
+                        elif(column == '/AP'):
+                            row.append(markup[column].N)
+                        elif(column == '/MeasurementTypes'):
+                            row.append(self.measurement_types_convert(int(markup[column])))
                         #This is not iterating correctly
                         elif("Space " in column):
                             for space in self.markup_space(markup):
