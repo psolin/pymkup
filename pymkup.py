@@ -195,6 +195,16 @@ class pymkup:
         if(content[0] == "("):
             content = content[1:-1]
 
+        def RepresentsInt(s):
+            try: 
+                int(s)
+                return True
+            except ValueError:
+                return False
+
+        if(RepresentsInt(content) == True):
+            content = ""
+
         return(content)
 
 
