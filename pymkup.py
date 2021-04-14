@@ -330,18 +330,22 @@ class pymkup:
         if(len(all_columns) == 0):
             return()
 
-        spaces = self.spaces_hierarchy(output="hierarchy")
+        #This spaces hierarchy doesn't work the way I want yet
+       
+        #spaces = self.spaces_hierarchy(output="hierarchy")
             
         for item in column_list:
             for idx in all_columns:
                 if(all_columns[idx] == item):
                     chosen_columns[idx] = item
             #Handle spaces
+            '''
             if(item == "Spaces"):
                 num_space_col = len(spaces.keys())
                 #print(num_space_col)
                 for space in spaces.keys():
-                    chosen_columns[space] = space        
+                    chosen_columns[space] = space
+            '''
 
         chosen_columns_keys = list(chosen_columns.keys())
 
