@@ -6,8 +6,6 @@ from pdfrw import PdfReader
 from treelib import Node, Tree
 from pathlib import Path
 import csv
-import re
-
 
 class pymkup:
     def __init__(self, file):
@@ -193,10 +191,12 @@ class pymkup:
         except:
             pass
 
+        #Remove the parenthesis
         if(content[0] == "("):
             content = content[1:-1]
 
-        if(len(content) == 1):
+        #Digits are garbage data
+        if(isdigit(int(content))):
             content = ""
 
         return(content)
@@ -317,6 +317,10 @@ class pymkup:
         else:
             chosen_columns = {}
         all_columns = self.get_columns()
+
+        #Get out of there if no markups
+        if(len(all_columns) == 0):
+            return()
 
         spaces = self.spaces_hierarchy(output="hierarchy")
             
