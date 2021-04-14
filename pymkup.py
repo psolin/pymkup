@@ -195,10 +195,6 @@ class pymkup:
         if(content[0] == "("):
             content = content[1:-1]
 
-        #Digits are garbage data
-        if(isdigit(int(content))):
-            content = ""
-
         return(content)
 
 
