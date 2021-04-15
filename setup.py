@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="pymkup",
-    version="0.1",
+    version="0.2",
     description="Accessing Bluebeam Revu PDF Data",
     long_description=README,
     long_description_content_type="text/markdown",
