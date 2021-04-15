@@ -145,6 +145,8 @@ class pymkup:
         columns_lookup['/LL'] = 'LL'  # Another Length Property
         # T/F - may be related to measurement or not
         columns_lookup['/Cap'] = 'Cap'
+        columns_lookup['/RiseDrop'] = 'Rise Drop'
+        columns_lookup['/AlignOnSegment'] = 'Align On Segment'
 
         # Taking the current column list across pages in the file and putting it into in a dictionary
         column_list = []
