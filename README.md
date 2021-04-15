@@ -6,6 +6,14 @@ pymkup is a Python library for viewing markups lists and property data in PDFs c
 
 This is a reverse-engineered unofficial API for accessing data generated in Bluebeam Revu authored PDFs. Once a PDF is loaded, it can be scraped for some information. This is in very early development, and is being developed independently.
 
+## Installation
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install pymkup.
+
+```bash
+pip install pymkup
+```
+
 ## Usage
 
 ```python
@@ -60,14 +68,11 @@ test4
 ```
 
 ## Requirements
-
 - pdfrw is a library for scraping PDF data in Python and doing some other manipulaton. As of 2021, the author has not been updating it or allowing pull requests. This may change, but the library is still very functional.
 - treelib is a library to create ASCII hierarchy trees in the spaces_tree() function.
 
 ## Contributing
-
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
-
 [MIT](https://choosealicense.com/licenses/mit/)
