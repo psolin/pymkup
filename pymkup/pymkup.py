@@ -357,8 +357,8 @@ class pymkup:
                     #Adds the custom column where I can generate info
                     elif(item not in all_columns.values()):
                         chosen_columns[item] = item
-                        #Handles Measurements
-                        if(item == 'Measurements'):
+                        #Handles Measurement
+                        if(item == 'Measurement'):
                             chosen_columns['Type'] = 'Type'
 
 
@@ -439,7 +439,7 @@ class pymkup:
                         elif(column == '/MeasurementTypes'):
                             row.append(self.measurement_types_convert(int(markup[column])))
                         #Handles feet
-                        elif(column == 'Measurements'):
+                        elif(column == 'Measurement'):
                             if("sf" in self.content_hex_convert(markup['/Contents'])):
                                 sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
                                 for item in sf_measure:
