@@ -318,7 +318,7 @@ class pymkup:
             # Return the Python dictionary
             return(spaces_tree.to_dict())
 
-    def arch_feet(self, text):
+    def feet_inches_convert(self, text):
         feet, sep, inches = text.rpartition("\'")
         if(sep != "\'"):
             return('')
@@ -357,6 +357,10 @@ class pymkup:
                     #Adds the custom column where I can generate info
                     elif(item not in all_columns.values()):
                         chosen_columns[item] = item
+                        #Handles Measurements
+                        if(item == 'Measurements'):
+                            chosen_columns['Type'] = 'Type'
+
 
         #Get out of there if no markups
         if(len(all_columns) == 0):
@@ -436,15 +440,29 @@ class pymkup:
                             row.append(self.measurement_types_convert(int(markup[column])))
                         #Handles feet
                         elif(column == 'Measurements'):
-                            if(markup['/IT'] == "/PolygonCount"):
+                            if("sf" in self.content_hex_convert(markup['/Contents'])):
+                                sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
+                                for item in sf_measure:
+                                    row.append(item)
+                            elif(markup['/IT'] == "/PolygonCount"):
                                 row.append(1)
-                            elif self.content_hex_convert(markup['/Contents']) != None:
-                                try:
-                                    row.append(self.arch_feet(self.content_hex_convert(markup['/Contents'])))
-                                except:
-                                    pass
-                            else:
-                                pass
+                                row.append("ct")
+                            elif(markup['/IT'] == "/PolyLineDimension" or
+                                markup['/IT'] == "/LineDimension" or
+                                markup['/IT'] == "/CircleDimension"):
+                                row.append(self.feet_inches_convert(self.content_hex_convert(markup['/Contents'])))
+                                row.append('lf')
+                            elif(markup['/IT'] == '/PolygonRadius'):
+                                r_measure = self.content_hex_convert(markup['/Contents'])
+                                row.append(self.feet_inches_convert(r_measure))
+                                row.append('r ft')
+                            elif(markup['/IT'] == '/PolygonVolume'):
+                                sf_measure = self.content_hex_convert(markup['/Contents']).split(" ", 1)
+                                row.append(sf_measure[0])
+                                row.append(sf_measure[1])
+                            elif(markup['/IT'] == '/PolyLineAngle'):
+                                row.append(self.content_hex_convert(markup['/Contents']))
+                                row.append('∠')
                         elif(column == 'Space'): 
                             row.append('-'.join(self.markup_space(markup)))
                         else:
