@@ -8,6 +8,7 @@ from pathlib import Path
 import csv
 from time import mktime, strptime
 from datetime import datetime
+from fractions import Fraction
 
 class pymkup:
     def __init__(self, file):
@@ -193,6 +194,9 @@ class pymkup:
         except:
             pass
 
+        if content == None:
+            return()
+
         #Remove the parenthesis
         if(content[0] == "("):
             content = content[1:-1]
@@ -312,6 +316,22 @@ class pymkup:
             # Return the Python dictionary
             return(spaces_tree.to_dict())
 
+    def arch_feet(self, text):
+        feet, sep, inches = text.rpartition("\'")
+        if(sep != "\'"):
+            return('')
+        inches = (inches[1:-1])
+        feet = float(feet)
+        if (' ') in inches:
+            inches_whole, inches_fract = inches.split(' ')
+            a = Fraction(inches_fract)
+            inches = (float(a) + float(inches_whole))/12
+        elif inches != "":
+            inches = float(inches)/12
+        else:
+            pass
+        return(feet+inches)
+
     def csv_export(self, column_list="default"):
         all_columns = self.get_columns()
 
@@ -412,13 +432,23 @@ class pymkup:
                             row.append(dt)
                         elif(column == '/MeasurementTypes'):
                             row.append(self.measurement_types_convert(int(markup[column])))
-                        #This is not iterating correctly
+                        #Handles feet
+                        elif(column == 'Measurements'):
+                            if(markup['/IT'] == "/PolygonCount"):
+                                row.append(1)
+                            elif self.content_hex_convert(markup['/Contents']) != None:
+                                try:
+                                    row.append(self.arch_feet(self.content_hex_convert(markup['/Contents'])))
+                                except:
+                                    pass
+                            else:
+                                pass
                         elif(column == 'Space'): 
                             row.append('-'.join(self.markup_space(markup)))
                         else:
                             row.append(markup[column][1:-1])
                     except:
-                        row.append("")
+                        pass
                 csv_writer.writerow(row)
 
         return()
