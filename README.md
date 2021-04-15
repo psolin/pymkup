@@ -24,7 +24,7 @@ x.csv_export() # Exports a CSV file with columns in default order.
 
 ### CSV export with custom columns example
 
-First, you should identify the columns which are accessible in your file:
+First, you should identify the columns that are accessible in your file:
 ```python
 x.get_columns().values()
 ```
