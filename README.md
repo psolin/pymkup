@@ -14,15 +14,12 @@ x = pymkup("link to your pdf")
 
 x.check_BB() # Checks if the document was authored by Revu
 x.get_page_labels() # Returns page labels/"Page X" formats
-x.get_markups_list() # A dump of all markups in a PDFDict object
-x.get_markups_index() # A list of pages and markups by primary keys
 x.markup_space() # A list of all spaces in a given markup.
 x.get_columns() # Returns master column/property fields list on all annotations
-x.get_spaces() # A dump of all spaces in a PDFDict object
+x.spaces_hierarchy() # Generates a spaces tree.
 x.spaces_hierarchy(output="dictionary") # Generates a spaces dictionary three levels deep.
 x.spaces_hierarchy(output="hierarchy") # Generates a spaces hierarchy for use in the columns list.
-x.spaces_hierarchy(output="tree") # Generates a spaces tree.
-x.csv_export(column_list="dictionary") # Exports a CSV file with columns in default order.
+x.csv_export() # Exports a CSV file with columns in default order.
 ```
 
 ### CSV export with custom columns example
@@ -34,12 +31,12 @@ x.get_columns().values()
 
 Second, you should review the extended columns here that can also be added:
 ```python
-['Spaces', 'Page Number', 'Page Label']
+['Space', 'Page Number', 'Page Label']
 ```
 
 Lastly, you can build the custom columns that you want in your CSV:
 ```python
-columns = ['Subject', 'Label', 'Date', 'PK', 'Spaces']
+columns = ['Subject', 'Label', 'Date', 'PK', 'Space']
 x.csv_export(column_list=columns)
 ```
 
