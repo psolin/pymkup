@@ -9,6 +9,7 @@ import csv
 from time import mktime, strptime
 from datetime import datetime
 from fractions import Fraction
+import json
 
 class pymkup:
     def __init__(self, file):
@@ -334,7 +335,7 @@ class pymkup:
             pass
         return(feet+inches)
 
-    def csv_export(self, column_list="default"):
+    def data(self, csv_output=False, column_list="default"):
         all_columns = self.get_columns()
 
         if column_list == "default":
@@ -370,6 +371,8 @@ class pymkup:
 
         chosen_columns_keys = list(chosen_columns.keys())
 
+        data = {'markups' : []}
+
         #Handles Page Number
         try:
             if(chosen_columns['Page Number']):
@@ -385,30 +388,29 @@ class pymkup:
         except:
             pass
 
-        with open(self.file_name + '.csv', mode='w') as csv_file:
-            csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            #Write the header row
-            csv_writer.writerow(list(chosen_columns.values()))
-
-            #Pull the data out
-            for markup in self.get_markups_list():
-                #Fresh row
-                row = []
-                for column in chosen_columns_keys:
-                    try:
+        #Pull the data out
+        for markup in self.get_markups_list():
+            #Fresh row
+            row = []
+            row_dict = {}
+            for column in chosen_columns_keys:
+                try:
+                    if(markup[column] is not None or 
+                        markup[column] != "()" or
+                        markup[column][1:-1] != ""):
                         if(column == '/OC'):
-                            row.append(markup[column].Name[1:-1])
+                            row_dict[chosen_columns[column]] = markup[column].Name[1:-1]
                         elif(column == '/IT'):
-                            row.append(self.IT_convert(markup[column]))
+                            row_dict[chosen_columns[column]] = self.IT_convert(markup[column])
                         elif(column == 'Page Number'):
-                            row.append(markup_index[markup.NM]+1)
+                            row_dict[chosen_columns[column]] = markup_index[markup.NM]+1
                         elif(column == 'Page Label'):
-                            row.append(page_label_index[markup_index[markup.NM]])
+                            row_dict[chosen_columns[column]] = page_label_index[markup_index[markup.NM]]
                         elif(
                             column == '/Type' or 
                             column == '/CountStyle' or 
                             column == '/Subtype'):
-                            row.append(markup[column][1:])
+                            row_dict[chosen_columns[column]] = markup[column][1:]
                         elif(
                             column == '/NumCounts' or
                             column == '/Version' or
@@ -424,58 +426,90 @@ class pymkup:
                             column == '/Version' or
                             column == '/BBMeasure' or
                             column == '/CA'):
-                            row.append(markup[column])
+                            row_dict[chosen_columns[column]] = markup[column]
                         elif(column == '/DepthUnit'):
-                            row.append(markup[column][0])
+                            row_dict[chosen_columns[column]] = markup[column][0]
                         elif(column == '/Contents'):
-                            row.append(self.content_hex_convert(markup[column]))
+                            if(self.content_hex_convert(markup[column]) != ""):
+                                row_dict[chosen_columns[column]] = self.content_hex_convert(markup[column])
                         elif(column == '/AP'):
-                            row.append(markup[column].N)
+                            row_dict[chosen_columns[column]] = markup[column].N
                         elif(
                             column == '/CreationDate' or
                             column == '/M'):
                             datestring = markup[column][3:-8]
                             ts = strptime(datestring, "%Y%m%d%H%M%S")
                             dt = datetime.fromtimestamp(mktime(ts))
-                            row.append(dt)
+                            row_dict[chosen_columns[column]] = dt
                         elif(column == '/MeasurementTypes'):
-                            row.append(self.measurement_types_convert(int(markup[column])))
-                        #Handles feet
+                            row_dict[chosen_columns[column]] = self.measurement_types_convert(int(markup[column]))
+                        #Handles imperial only for now
                         elif(column == 'Measurement'):
                             if("sf" in self.content_hex_convert(markup['/Contents'])):
                                 sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
-                                for item in sf_measure:
-                                    row.append(item)
+                                row_dict['Measurement'] = sf_measure[0]
+                                row_dict['Type'] = sf_measure[1]
                             elif(markup['/IT'] == "/PolygonCount"):
-                                row.append(1)
-                                row.append("ct")
+                                row_dict['Measurement'] = 1
+                                row_dict['Type'] = "ct"
                             elif(markup['/IT'] == "/PolyLineDimension" or
                                 markup['/IT'] == "/LineDimension" or
                                 markup['/IT'] == "/CircleDimension"):
-                                row.append(self.feet_inches_convert(self.content_hex_convert(markup['/Contents'])))
-                                row.append('lf')
+                                row_dict['Measurement'] = self.feet_inches_convert(self.content_hex_convert(markup['/Contents']))
+                                row_dict['Type'] = "lf"
                             elif(markup['/IT'] == '/PolygonRadius'):
                                 r_measure = self.content_hex_convert(markup['/Contents'])
-                                row.append(self.feet_inches_convert(r_measure))
-                                row.append('r ft')
+                                row_dict['Measurement'] = self.feet_inches_convert(r_measure)
+                                row_dict['Type'] = 'r ft'
                             elif(markup['/IT'] == '/PolygonVolume'):
                                 sf_measure = self.content_hex_convert(markup['/Contents']).split(" ", 1)
-                                row.append(sf_measure[0])
-                                row.append(sf_measure[1])
+                                row_dict['Measurement'] = sf_measure[0]
+                                row_dict['Type'] = sf_measure[1]
                             elif(markup['/IT'] == '/PolyLineAngle'):
-                                row.append(self.content_hex_convert(markup['/Contents']))
-                                row.append('∠')
-                            else:
-                                row.append("")
-                                row.append("")
+                                row_dict['Measurement'] = self.content_hex_convert(markup['/Contents'])
+                                row_dict['Type'] = '∠'
                         elif(column == "Type"):
                             pass
                         elif(column == 'Space'): 
-                            row.append('-'.join(self.markup_space(markup)))
+                            if(self.markup_space(markup) != []):
+                                row_dict[chosen_columns[column]] = '-'.join(self.markup_space(markup))
                         else:
-                            row.append(markup[column][1:-1])
+                            if(str(markup[column]) != "()"):
+                                row_dict[chosen_columns[column]] = markup[column][1:-1]
+                except:
+                    pass
+            data['markups'].append(row_dict)
+        # Opening JSON file and loading the data
+        # into the variable data
+        if csv_output == True:  
+            markup_data = data['markups']
+              
+            # now we will open a file for writing
+            data_file = open(self.file_name + '.csv', 'w')
+              
+            # create the csv writer object
+            csv_writer = csv.writer(data_file)
+              
+            # Counter variable used for writing 
+            # headers to the CSV file
+            count = 0
+              
+            for markup in markup_data:
+                if count == 0:
+              
+                    # Writing headers of CSV file
+                    header = markup.keys()
+                    csv_writer.writerow(header)
+                    count += 1
+              
+                # Writing data of CSV file
+                row = []
+                for col in header:
+                    try:
+                        row.append(markup[col])
                     except:
                         row.append("")
                 csv_writer.writerow(row)
-
-        return()
+              
+            data_file.close()
+        return(data)

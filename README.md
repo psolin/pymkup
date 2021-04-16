@@ -27,10 +27,11 @@ x.get_columns() # Returns master column/property fields list on all annotations
 x.spaces_hierarchy() # Generates a spaces tree.
 x.spaces_hierarchy(output="dictionary") # Generates a spaces dictionary three levels deep.
 x.spaces_hierarchy(output="hierarchy") # Generates a spaces hierarchy for use in the columns list.
-x.csv_export() # Exports a CSV file with columns in default order.
+x.data() # Returns JSON with columns in default order.
+x.data(csv_file=True) # Generates a CSV with data with columns in default order.
 ```
 
-### CSV export with custom columns example
+### Data export with custom columns example
 
 First, you should identify the columns that are accessible in your file:
 ```python
@@ -42,10 +43,10 @@ Second, you should review the extended columns here that can also be added:
 ['Space', 'Page Number', 'Page Label', 'Measurement']
 ```
 
-Lastly, you can build the custom columns that you want in your CSV:
+Lastly, you can build the custom columns that you want to see returned:
 ```python
 columns = ['Subject', 'Label', 'Date', 'PK', 'Space']
-x.csv_export(column_list=columns)
+x.data(column_list=columns)
 ```
 
 ### Example output of spaces tree ("test4.pdf")
