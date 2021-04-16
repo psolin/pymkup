@@ -342,6 +342,8 @@ class pymkup:
             '/Subj': 'Subject', 
             'Page Label': 'Page Label', 
             '/Label': 'Label', 
+            'Measurement' : 'Measurement',
+            'Type' : 'Type',
             '/CreationDate': 'Creation Date',  
             '/T': 'Author', 
             '/M': 'Date', 
@@ -355,11 +357,11 @@ class pymkup:
                     if(all_columns[idx] == item):
                         chosen_columns[idx] = item
                     #Adds the custom column where I can generate info
+                    if(item == 'Measurement'):
+                        chosen_columns['Measurement'] = 'Measurement'
+                        chosen_columns['Type'] = 'Type'
                     elif(item not in all_columns.values()):
                         chosen_columns[item] = item
-                        #Handles Measurement
-                        if(item == 'Measurement'):
-                            chosen_columns['Type'] = 'Type'
 
 
         #Get out of there if no markups
@@ -463,12 +465,17 @@ class pymkup:
                             elif(markup['/IT'] == '/PolyLineAngle'):
                                 row.append(self.content_hex_convert(markup['/Contents']))
                                 row.append('∠')
+                            else:
+                                row.append("")
+                                row.append("")
+                        elif(column == "Type"):
+                            pass
                         elif(column == 'Space'): 
                             row.append('-'.join(self.markup_space(markup)))
                         else:
                             row.append(markup[column][1:-1])
                     except:
-                        pass
+                        row.append("")
                 csv_writer.writerow(row)
 
         return()
