@@ -27,8 +27,8 @@ x.get_columns() # Returns master column/property fields list on all annotations
 x.spaces_hierarchy() # Generates a spaces tree.
 x.spaces_hierarchy(output="dictionary") # Generates a spaces dictionary three levels deep.
 x.spaces_hierarchy(output="hierarchy") # Generates a spaces hierarchy for use in the columns list.
-x.data() # Returns JSON with columns in default order.
-x.data(csv_file=True) # Generates a CSV with data with columns in default order.
+x.data() # Returns JSON.
+x.data(csv_file=True) # Generates a CSV with columns in default order.
 ```
 
 ### Data export with custom columns example
