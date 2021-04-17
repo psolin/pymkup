@@ -9,6 +9,7 @@ import csv
 from time import mktime, strptime
 from datetime import datetime
 from fractions import Fraction
+from columndata import column_data
 
 class pymkup:
     def __init__(self, file):
@@ -81,80 +82,7 @@ class pymkup:
     # Extracting the current document's column/property lists
     # I probably missed some various properties.
     def get_columns(self):
-        columns_lookup = {}
-        # These are the default columns
-        columns_lookup['/Subj'] = "Subject"
-        columns_lookup['/CreationDate'] = "Creation Date"
-        columns_lookup['/Label'] = "Label"
-        columns_lookup['/T'] = 'Author'
-        # Optional Content Group as "Name" key
-        columns_lookup['/OC'] = "Layer"
-        columns_lookup['/M'] = "Date"  # Technically "modified" date
-        columns_lookup['/Contents'] = "Comments"  # Hex text comment
-
-        # These are hidden properties
-        columns_lookup['/NM'] = "PK"  # Primary Key for Markup
-        # Groupings by primary key and subject (>1)
-        columns_lookup['/GroupNesting'] = 'Group Nesting'
-        columns_lookup['/Type'] = 'Type'  # Annotation (markup) or otherwise
-        columns_lookup['/Subtype'] = 'Subtype'  # Shape parent catagory
-        columns_lookup['/CountStyle'] = 'Count Style'  # Count tool shape style
-        # Exact layout of the markup in x,y coordinates
-        columns_lookup['/Vertices'] = 'Vertices'
-        columns_lookup['/BS'] = 'BS'  # Markup style
-        columns_lookup['/Rect'] = 'Rectangle'  # Rectanular Coordinates
-        # The count of the larger group where the markup is nested
-        columns_lookup['/NumCounts'] = "NumCounts"
-        columns_lookup['/IT'] = "IT"  # Type of counting (measurement)
-
-        # Properties
-        # Scale where the markup falls and the multiplier
-        columns_lookup['/BBMeasure'] = "BBMeasure"
-        # Describes the XObjects
-        columns_lookup['/AP'] = 'AP'
-        # Measurement Properties
-        columns_lookup['/MeasurementTypes'] = 'Measurement Types'
-        columns_lookup['/Measure'] = 'Measure'  # Measurement Properties
-        columns_lookup['/RC'] = "Rich Text"  # Segment Rich Text Appearance
-        columns_lookup['/CA'] = "Opacity"  # Opacity Property
-        columns_lookup['/CountScale'] = 'Scale'  # Scale Property
-        # Custom columns options and selections
-        columns_lookup['/BSIColumnData'] = "BSIColumnData"
-        columns_lookup['/DS'] = "DS"  # Caption font and style
-        # Area Mesurement/Length Measurement
-        columns_lookup['/SlopeType'] = 'Slope Type'
-        # Related to pitch and run, slope properties
-        columns_lookup['/PitchRun'] = 'PitchRun'
-        columns_lookup['/DepthUnit'] = "Depth Unit"
-        columns_lookup['/Depth'] = "Depth"
-        # Start/End Line Cap in Length Measurement
-        columns_lookup['/LE'] = 'Length Caps'
-        # Line Width in Length Measurement
-        columns_lookup['/LLE'] = 'Length Line Width'
-        # The box where the entire line/lead is located
-        columns_lookup['/L'] = 'Length Box'
-
-        # These are hidden/unknown columns to me
-        columns_lookup['/P'] = "P"  # All of the data combined
-        # This may be if something is checked or not
-        columns_lookup['/F'] = "F"
-        # Unknown three option list, possibly status
-        columns_lookup['/C'] = "C"
-        # Mirrors C but returns empty list instead of blank with text
-        columns_lookup['/IC'] = "IC"
-        columns_lookup['/Version'] = "Version"  # Versioning, not sure how
-        columns_lookup['/LL'] = 'LL'  # Another Length Property
-        # T/F - may be related to measurement or not
-        columns_lookup['/Cap'] = 'Cap'
-        columns_lookup['/RiseDrop'] = 'Rise Drop'
-        columns_lookup['/AlignOnSegment'] = 'Align On Segment'
-        columns_lookup['/A'] = 'A'
-        columns_lookup['/Border'] = 'Border'
-        columns_lookup['/BSIBatchQuery'] = 'BSIBatchQuery'
-        columns_lookup['/QuadPoints'] = 'QuadPoints'
-        columns_lookup['/Dest'] = 'Dest'
-        columns_lookup['/RD'] = 'RD'
-        
+        columns_lookup = column_data        
 
         # Taking the current column list across pages in the file and putting it into in a dictionary
         column_list = []
