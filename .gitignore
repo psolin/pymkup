@@ -66,3 +66,4 @@ tests/test.py
 *.pdf
 test.py
 *.csv
+pymkup/tests/pypdf4_test.py

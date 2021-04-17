@@ -21,14 +21,9 @@ from pymkup import pymkup
 x = pymkup("link to your pdf")
 
 x.check_BB() # Checks if the document was authored by Revu
-x.get_page_labels() # Returns page labels/"Page X" formats
-x.markup_space() # A list of all spaces in a given markup.
-x.get_columns() # Returns master column/property fields list on all annotations
 x.spaces_hierarchy() # Generates a spaces tree.
 x.spaces_hierarchy(output="dictionary") # Generates a spaces dictionary three levels deep.
-x.spaces_hierarchy(output="hierarchy") # Generates a spaces hierarchy for use in the columns list.
-x.data() # Returns JSON.
-x.data(csv_file=True) # Generates a CSV with columns in default order.
+x.markups() # Returns JSON dictionary of markups.
 ```
 
 ### Data export with custom columns example
@@ -46,7 +41,7 @@ Second, you should review the extended columns here that can also be added:
 Lastly, you can build the custom columns that you want to see returned:
 ```python
 columns = ['Subject', 'Label', 'Date', 'PK', 'Space']
-x.data(column_list=columns)
+x.markups(column_list=columns)
 ```
 
 ### Example output of spaces tree ("test4.pdf")
@@ -69,7 +64,7 @@ test4
 ```
 
 ## Requirements
-- pdfrw is a library for scraping PDF data in Python and doing some other manipulaton. As of 2021, the author has not been updating it or allowing pull requests. This may change, but the library is still very functional.
+- pdfrw is a library for scraping PDF data in Python and doing some other manipulaton.
 - treelib is a library to create ASCII hierarchy trees in the spaces_tree() function.
 
 ## Contributing
