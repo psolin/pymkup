@@ -8,6 +8,7 @@ from pathlib import Path
 import csv
 from time import mktime, strptime
 from datetime import datetime
+from fractions import Fraction
 
 class pymkup:
     def __init__(self, file):
@@ -21,6 +22,7 @@ class pymkup:
         return True if ("Bluebeam" in self.template_pdf.Info.Creator) else False
 
     # Extract the page labels into a dictionary
+    #This is broken for some files because of the hierarchy.
     def get_page_labels(self):
         page_label_dict = {}
         #This will work if there are any page labels
@@ -63,8 +65,8 @@ class pymkup:
     def markup_space(self, markup):
         markup_spaces = {}
         spaces_list = []
-        if markup.P.BSISpaces:
-            try:
+        try:
+            if markup.P.BSISpaces:
                 #This is way too much. Can support spaces 6 deep...
                 spaces_list.append(markup.P.BSISpaces[0].Title[1:-1])
                 spaces_list.append(markup.P.BSISpaces[0].Kids[0].Title[1:-1])
@@ -72,8 +74,8 @@ class pymkup:
                 spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
                 spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
                 spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-            except:
-                pass
+        except:
+            pass
         return(spaces_list)
 
     # Extracting the current document's column/property lists
@@ -144,6 +146,15 @@ class pymkup:
         columns_lookup['/LL'] = 'LL'  # Another Length Property
         # T/F - may be related to measurement or not
         columns_lookup['/Cap'] = 'Cap'
+        columns_lookup['/RiseDrop'] = 'Rise Drop'
+        columns_lookup['/AlignOnSegment'] = 'Align On Segment'
+        columns_lookup['/A'] = 'A'
+        columns_lookup['/Border'] = 'Border'
+        columns_lookup['/BSIBatchQuery'] = 'BSIBatchQuery'
+        columns_lookup['/QuadPoints'] = 'QuadPoints'
+        columns_lookup['/Dest'] = 'Dest'
+        columns_lookup['/RD'] = 'RD'
+        
 
         # Taking the current column list across pages in the file and putting it into in a dictionary
         column_list = []
@@ -153,7 +164,7 @@ class pymkup:
                 for columns in self.template_pdf.pages[page].Annots[0]:
                     column_list.append(columns)
             except:
-                return(column_dict)
+                pass
 
         # Remove dupes
         [i for n, i in enumerate(column_list) if i not in column_list[:n]]
@@ -163,14 +174,6 @@ class pymkup:
             column_dict[column] = columns_lookup[column]
 
         return(column_dict)
-
-    #Converts /IT column
-    def IT_convert(self, markup):
-        IT_dict = {}
-        IT_dict['/PolygonCount'] = "Polygon Count"
-        IT_dict['/PolyLineDimension'] = "PolyLine Dimension"
-        IT_dict['/LineDimension'] = "Line Dimension"
-        return(IT_dict[markup])
 
     # /MeasurementTypes conversion to something more meaningful
     def measurement_types_convert(self, markup):
@@ -185,6 +188,9 @@ class pymkup:
 
     # /Contents conversion into something more meaningful
     def content_hex_convert(self, content):
+        if content == None:
+            return(None)
+        
         try:
             if ("feff" in content):
                 content = content.decode_hex()
@@ -196,16 +202,6 @@ class pymkup:
         #Remove the parenthesis
         if(content[0] == "("):
             content = content[1:-1]
-
-        def RepresentsInt(s):
-            try: 
-                int(s)
-                return True
-            except ValueError:
-                return False
-
-        if(RepresentsInt(content) == True):
-            content = ""
 
         return(content)
 
@@ -223,7 +219,7 @@ class pymkup:
             space_list = []
         return(space_dict)
 
-    def spaces_hierarchy(self, output="tree"):
+    def spaces(self, output="tree"):
         spaces = self.get_spaces()
         page_labels = self.get_page_labels()
         spaces_tree = Tree()
@@ -312,20 +308,53 @@ class pymkup:
             # Return the Python dictionary
             return(spaces_tree.to_dict())
 
-    def csv_export(self, column_list="default"):
+    def feet_inches_convert(self, text):
+        feet, sep, inches = text.rpartition("\'")
+        if(sep != "\'"):
+            return('')
+        inches = (inches[1:-1])
+        feet = float(feet)
+        if (' ') in inches:
+            inches_whole, inches_fract = inches.split(' ')
+            a = Fraction(inches_fract)
+            inches = (float(a) + float(inches_whole))/12
+        elif inches == 0:
+            pass
+        elif '/' in inches:
+            a = Fraction(str(inches))
+            inches = float(a)/12
+        else:
+            inches = float(inches)/12
+        return(feet+inches)
+
+    def markups(self, space_hierarchy=False, column_list="default"):
         all_columns = self.get_columns()
+
+        #Get out of there if no markups
+        if(len(all_columns) == 0):
+            return()
+
+        custom_columns = ['Measurement', 'Type', 'Page Label', 'Page Number']
 
         if column_list == "default":
             chosen_columns = {
             '/Subj': 'Subject', 
-            'Page Label': 'Page Label', 
+            'Page Label': 'Page Label',
+            'Page Number' : 'Page Number',  
             '/Label': 'Label', 
+            'Measurement' : 'Measurement',
+            'Type' : 'Type',
             '/CreationDate': 'Creation Date',  
             '/T': 'Author', 
             '/M': 'Date', 
             '/Contents': 'Comments', 
-            '/OC': 'Layer', 
-            'Space': 'Space'}
+            '/OC': 'Layer'}
+            if(space_hierarchy == True):
+               spaces_dump = self.spaces(output="hierarchy")
+               for space in spaces_dump:
+                    chosen_columns[space] = space
+            else:
+                chosen_columns['Space'] = 'Space'
         else:
             chosen_columns = {}
             for item in column_list:
@@ -333,14 +362,19 @@ class pymkup:
                     if(all_columns[idx] == item):
                         chosen_columns[idx] = item
                     #Adds the custom column where I can generate info
+                    if(item == 'Space' and space_hierarchy == True):
+                        spaces_dump = self.spaces(output="hierarchy")
+                        for space in spaces_dump:
+                            chosen_columns[space] = space
+                    if(item == 'Measurement'):
+                        chosen_columns['Measurement'] = 'Measurement'
+                        chosen_columns['Type'] = 'Type'
                     elif(item not in all_columns.values()):
                         chosen_columns[item] = item
 
-        #Get out of there if no markups
-        if(len(all_columns) == 0):
-            return()
-
         chosen_columns_keys = list(chosen_columns.keys())
+
+        data = {'markups' : []}
 
         #Handles Page Number
         try:
@@ -357,68 +391,108 @@ class pymkup:
         except:
             pass
 
-        with open(self.file_name + '.csv', mode='w') as csv_file:
-            csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            #Write the header row
-            csv_writer.writerow(list(chosen_columns.values()))
-
-            #Pull the data out
-            for markup in self.get_markups_list():
-                #Fresh row
-                row = []
-                for column in chosen_columns_keys:
-                    try:
-                        if(column == '/OC'):
-                            row.append(markup[column].Name[1:-1])
-                        elif(column == '/IT'):
-                            row.append(self.IT_convert(markup[column]))
-                        elif(column == 'Page Number'):
-                            row.append(markup_index[markup.NM]+1)
-                        elif(column == 'Page Label'):
-                            row.append(page_label_index[markup_index[markup.NM]])
-                        elif(
-                            column == '/Type' or 
-                            column == '/CountStyle' or 
-                            column == '/Subtype'):
-                            row.append(markup[column][1:])
-                        elif(
-                            column == '/NumCounts' or
-                            column == '/Version' or
-                            column == '/GroupNesting' or
-                            column == '/Version' or
-                            column == '/F' or
-                            column == '/BS' or
-                            column == '/IC' or
-                            column == '/DS' or
-                            column == '/BSIColumnData' or
-                            column == '/Vertices' or
-                            column == '/Rect' or
-                            column == '/Version' or
-                            column == '/BBMeasure' or
-                            column == '/CA'):
-                            row.append(markup[column])
-                        elif(column == '/DepthUnit'):
-                            row.append(markup[column][0])
-                        elif(column == '/Contents'):
-                            row.append(self.content_hex_convert(markup[column]))
-                        elif(column == '/AP'):
-                            row.append(markup[column].N)
-                        elif(
-                            column == '/CreationDate' or
-                            column == '/M'):
-                            datestring = markup[column][3:-8]
-                            ts = strptime(datestring, "%Y%m%d%H%M%S")
-                            dt = datetime.fromtimestamp(mktime(ts))
-                            row.append(dt)
-                        elif(column == '/MeasurementTypes'):
-                            row.append(self.measurement_types_convert(int(markup[column])))
-                        #This is not iterating correctly
-                        elif(column == 'Space'): 
-                            row.append('-'.join(self.markup_space(markup)))
-                        else:
-                            row.append(markup[column][1:-1])
-                    except:
-                        row.append("")
-                csv_writer.writerow(row)
-
-        return()
+        #Pull the data out
+        for markup in self.get_markups_list():
+            #Fresh row
+            row = []
+            row_dict = {}
+            for column in chosen_columns_keys:
+                #Too much confusion.
+                if markup['/Subj'] is None:
+                    break
+                elif((markup[column]) or 
+                column in custom_columns or
+                'Space' in column):
+                    if(column == '/OC'):
+                        row_dict[chosen_columns['/OC']] = markup['/OC'].Name[1:-1]
+                    elif(column == '/IT'):
+                        row_dict[chosen_columns[column]] = markup[column]
+                    #Subject is needed to filter down results
+                    elif(column == 'Page Number'):
+                        row_dict[chosen_columns[column]] = markup_index[markup.NM]+1
+                    elif(column == 'Page Label'):
+                        if(markup_index[markup.NM] is not None):
+                            row_dict['Page Label'] = page_label_index[markup_index[markup.NM]]
+                    elif(
+                        column == '/Type' or 
+                        column == '/CountStyle' or 
+                        column == '/Subtype'):
+                        row_dict[chosen_columns[column]] = markup[column][1:]
+                    elif(
+                        column == '/NumCounts' or
+                        column == '/Version' or
+                        column == '/GroupNesting' or
+                        column == '/Version' or
+                        column == '/F' or
+                        column == '/BS' or
+                        column == '/IC' or
+                        column == '/DS' or
+                        column == '/BSIColumnData' or
+                        column == '/Vertices' or
+                        column == '/Rect' or
+                        column == '/Version' or
+                        column == '/BBMeasure' or
+                        column == '/CA'):
+                        row_dict[chosen_columns[column]] = markup[column]
+                    elif(column == '/DepthUnit'):
+                        row_dict[chosen_columns[column]] = markup[column][0]
+                    elif(column == '/Contents'):
+                        row_dict[chosen_columns[column]] = self.content_hex_convert(markup[column])
+                    elif(column == '/AP'):
+                        row_dict[chosen_columns[column]] = markup[column].N
+                    elif(
+                        column == '/CreationDate' or
+                        column == '/M'):
+                        datestring = markup[column][3:-8]
+                        ts = strptime(datestring, "%Y%m%d%H%M%S")
+                        dt = datetime.fromtimestamp(mktime(ts))
+                        row_dict[chosen_columns[column]] = dt
+                    elif(column == '/MeasurementTypes'):
+                        row_dict[chosen_columns[column]] = self.measurement_types_convert(int(markup[column]))
+                    #Handles imperial only for now
+                    elif(column == 'Measurement'):
+                        if("sf" in str(self.content_hex_convert(markup['/Contents']))):
+                            sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
+                            row_dict['Measurement'] = sf_measure[0]
+                            row_dict['Type'] = sf_measure[1]
+                        elif(markup['/IT'] == "/PolygonCount"):
+                            row_dict['Measurement'] = 1
+                            row_dict['Type'] = "ct"
+                        elif(markup['/IT'] == "/PolyLineDimension" or
+                            markup['/IT'] == "/LineDimension" or
+                            markup['/IT'] == "/CircleDimension"):
+                            row_dict['Measurement'] = self.feet_inches_convert(self.content_hex_convert(markup['/Contents']))
+                            row_dict['Type'] = "lf"
+                        elif(markup['/IT'] == '/PolygonRadius'):
+                            r_measure = self.content_hex_convert(markup['/Contents'])
+                            row_dict['Measurement'] = self.feet_inches_convert(r_measure)
+                            row_dict['Type'] = 'r ft'
+                        elif(markup['/IT'] == '/PolygonVolume'):
+                            sf_measure = self.content_hex_convert(markup['/Contents']).split(" ", 1)
+                            row_dict['Measurement'] = sf_measure[0]
+                            row_dict['Type'] = sf_measure[1]
+                        elif(markup['/IT'] == '/PolyLineAngle'):
+                            row_dict['Measurement'] = self.content_hex_convert(markup['/Contents'])
+                            row_dict['Type'] = '∠'
+                    elif(column == "Type"):
+                        pass
+                    elif("Space" in column): 
+                        space = self.markup_space(markup)
+                        if space is not None:
+                            if space_hierarchy == True:
+                                if len(space) > 1:
+                                    for k, v in spaces_dump.items():
+                                        for s in space:
+                                            if s in v:
+                                                row_dict[k] = s
+                            else:
+                                row_dict[chosen_columns[column]] = '-'.join(space)
+                    elif(markup[column] is not None):
+                        row_dict[chosen_columns[column]] = markup[column][1:-1]
+                    else:
+                        pass
+                else:
+                    pass
+            if(len(row_dict)>0):
+                data['markups'].append(row_dict)
+        return(data)
