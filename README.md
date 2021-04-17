@@ -18,9 +18,7 @@ pip install pymkup
 
 ```python
 from pymkup import pymkup
-x = pymkup("link to your pdf")
-
-x.check_BB() # Checks if the document was authored by Revu
+x = pymkup("link to your Revu pdf")
 x.spaces_hierarchy() # Generates a spaces tree.
 x.spaces_hierarchy(output="dictionary") # Generates a spaces dictionary three levels deep.
 x.markups() # Returns JSON dictionary of markups.

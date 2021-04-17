@@ -13,14 +13,15 @@ from columndata import column_data
 
 class pymkup:
     def __init__(self, file):
-        self.file = file
-        self.inpfn = os.path.dirname(os.path.realpath(__file__)) + self.file
-        self.template_pdf = PdfReader(self.inpfn)
-        self.file_name = Path(self.inpfn).stem
-
-    # Checking if the PDF was authored by BB
-    def check_BB(self):
-        return True if ("Bluebeam" in self.template_pdf.Info.Creator) else False
+        try:
+            self.file = file
+            self.inpfn = os.path.dirname(os.path.realpath(__file__)) + self.file
+            self.template_pdf = PdfReader(self.inpfn)
+            # Checking if the PDF was authored by BB
+            bb_check = "Bluebeam" in self.template_pdf.Info.Creator
+            self.file_name = Path(self.inpfn).stem
+        except:
+            pass
 
     # Extract the page labels into a dictionary
     #This is broken for some files because of the hierarchy.
