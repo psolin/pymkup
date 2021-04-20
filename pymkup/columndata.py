@@ -1,39 +1,44 @@
 column_data = {
-        # These are the default columns
+        # Thanks to terminalworks.com, 
+        # PDF-Class-raku for some definititions.
+
+
+        # Default Columns
+        
+        # Text representing a short description of 
+        # the subject being addressed by the annotation.
         '/Subj' : 'Subject',
         '/CreationDate' : 'Creation Date',
         '/Label' : 'Label',
+        # By convention, this entry identifies the 
+        # user who added the annotation.
         '/T' : 'Author',
         # Optional Content Group as 'Name' key
         '/OC' : 'Layer',
-        '/M' : 'Date',  # Technically 'modified' date
-        '/Contents' : 'Comments',  # Hex text comment
+        # The date and time when the annotation 
+        # was most recently modified.
+        '/M' : 'Date',
+        # Text to be displayed for the annotation or, if this type 
+        # of annotation does not display text, an alternate description 
+        # of the annotation’s contents in human-readable form.
+        # Hex text "Comment" column.
+        '/Contents' : 'Comments',  
 
-        # These are hidden properties
-        '/NM' : 'PK',  # Primary Key for Markup
-        # Groupings by primary key and subject (>1)
-        '/GroupNesting' : 'Group Nesting',
-        '/Type' : 'Type',  # Annotation (markup) or otherwise
-        '/Subtype' : 'Subtype',  # Shape parent catagory
-        '/CountStyle' : 'Count Style',  # Count tool shape style
-        # Exact layout of the markup in x,y coordinates
-        '/Vertices' : 'Vertices',
-        '/BS' : 'BS',  # Markup style
-        '/Rect' : 'Rectangle',  # Rectanular Coordinates
-        # The count of the larger group where the markup is nested
-        '/NumCounts' : 'NumCounts',
-        '/IT' : 'IT',  # Type of counting (measurement)
 
-        # Properties
+        # Known Properties
+        
         # Scale where the markup falls and the multiplier
         '/BBMeasure' : 'BBMeasure',
-        # Describes the XObjects
+        # Describes the appearance of XObjects
         '/AP' : 'AP',
         # Measurement Properties
         '/MeasurementTypes' : 'Measurement Types',
         '/Measure' : 'Measure',  # Measurement Properties
         '/RC' : 'Rich Text',  # Segment Rich Text Appearance
-        '/CA' : 'Opacity',  # Opacity Property
+        # The constant opacity value to be used 
+        # in painting the annotation.
+        # Opacity Property
+        '/CA' : 'Opacity',  
         '/CountScale' : 'Scale',  # Scale Property
         # Custom columns options and selections
         '/BSIColumnData' : 'BSIColumnData',
@@ -41,7 +46,7 @@ column_data = {
         # Area Mesurement/Length Measurement
         '/SlopeType' : 'Slope Type',
         # Related to pitch and run, slope properties
-        '/PitchRun' : 'PitchRun',
+        '/PitchRun' : 'Pitch/Run',
         '/DepthUnit' : 'Depth Unit',
         '/Depth' : 'Depth',
         # Start/End Line Cap in Length Measurement
@@ -51,24 +56,56 @@ column_data = {
         # The box where the entire line/lead is located
         '/L' : 'Length Box',
 
-        # These are hidden/unknown columns to me
+
+        # Hidden Properties
+        
+        # Primary key for markup aka "annotation name"
+        '/NM' : 'UUID', 
+        # Groupings by UUID and subject (>1)
+        '/GroupNesting' : 'Group Nesting',
+        # The type of PDF object that this dictionary describes
+        '/Type' : 'Type', 
+        # The type of annotation that this dictionary describes.
+        #Shape parent catagory
+        '/Subtype' : 'Subtype',  
+        '/CountStyle' : 'Count Style',  # Count tool shape style
+        #Exact layout of the markup in x,y coordinates
+        '/Vertices' : 'Vertices',
+        #Border Style
+        '/BS' : 'BS', 
+        # The annotation rectangle, defining the location of 
+        # the annotation on the page in default user space units.
+        '/Rect' : 'Rectangle',
+        # The count of the larger group where the markup is nested
+        '/NumCounts' : 'NumCounts',
+        #"Intent", type of counting (measurement)
+        '/IT' : 'Intent',
+        #Polylength tool Rise/Drop value
+        '/RiseDrop' : 'Rise/Drop',
+        # An action to be performed when the annotation is activated.
+        '/A' : 'A', 
+        # Color
+        '/C' : 'Color',
+        # Interior Color
+        '/IC' : 'Interior Color',
+        # A set of flags specifying various characteristics 
+        # of the annotation. Default value: 0.
+        '/F' : 'Flags',
+
+
+        # Unknown Properties
+        
         '/P' : 'P',  # All of the data combined
-        # This may be if something is checked or not
-        '/F' : 'F',
-        # Unknown three option list, possibly status
-        '/C' : 'C',
-        # Mirrors C but returns empty list instead of blank with text
-        '/IC' : 'IC',
         '/Version' : 'Version',  # Versioning, not sure how
         '/LL' : 'LL',  # Another Length Property
         # T/F - may be related to measurement or not
         '/Cap' : 'Cap',
-        '/RiseDrop' : 'Rise Drop',
         '/AlignOnSegment' : 'Align On Segment',
-        '/A' : 'A',
         '/Border' : 'Border',
         '/BSIBatchQuery' : 'BSIBatchQuery',
+        # Possibly a link property
         '/QuadPoints' : 'QuadPoints',
         '/Dest' : 'Dest',
+        # Rectangle differences
         '/RD' : 'RD'
 }

@@ -37,7 +37,7 @@ Second, you should review the extended columns here that can also be added:
 
 Lastly, you can build the custom columns that you want to see returned:
 ```python
-columns = ['Subject', 'Label', 'Date', 'PK', 'Space']
+columns = ['Subject', 'Label', 'Date', 'UUID', 'Space']
 x.markups(column_list=columns)
 ```
 

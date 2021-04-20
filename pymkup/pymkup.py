@@ -53,7 +53,7 @@ class pymkup:
                 pass
         return(markups_list)
 
-    # Indexing the markups to their respective pages by PK
+    # Indexing the markups to their respective pages by UUID
     def get_markups_index(self):
         markups_index = {}
         for idx, page in enumerate(self.template_pdf.pages):
