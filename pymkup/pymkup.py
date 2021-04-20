@@ -135,7 +135,7 @@ class pymkup:
         return(content)
 
 
-    def get_spaces(self):
+    def get_all_spaces(self):
         space_list = []
         space_dict = {}
         for idx, page in enumerate(self.template_pdf.pages):
@@ -148,8 +148,8 @@ class pymkup:
             space_list = []
         return(space_dict)
 
-    def spaces(self, output="tree"):
-        spaces = self.get_spaces()
+    def spaces(self, output="dictionary"):
+        spaces = self.get_all_spaces()
         page_labels = self.get_page_labels()
         spaces_tree = Tree()
         #Add PDF name as top node
@@ -233,9 +233,11 @@ class pymkup:
                     if str(space)[7:-6] not in space_dict[res]:
                         space_dict[res].append(str(space)[7:-6])
             return(space_dict)
-        elif output == "dictionary":
+        else:
             # Return the Python dictionary
-            return(spaces_tree.to_dict())
+            spaces_dict = {'spaces' : []}
+            spaces_dict['spaces'].append(spaces_tree.to_dict())
+            return(spaces_dict)
 
     def feet_inches_convert(self, text):
         feet, sep, inches = text.rpartition("\'")
