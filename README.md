@@ -4,7 +4,7 @@ pymkup is a Python library for viewing markups lists and property data in PDFs c
 
 ## About
 
-This is a reverse-engineered unofficial API for accessing data generated in Bluebeam Revu authored PDFs. Once a PDF is loaded, it can be scraped for some information. This is in very early development, and is being developed independently.
+This is a reverse-engineered unofficial API for accessing data generated in Bluebeam Revu authored PDFs. Once a file is loaded, it can be scraped for some information.
 
 ## Installation
 
