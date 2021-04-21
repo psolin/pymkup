@@ -62,8 +62,4 @@ target/
 # Pycharm
 .idea
 .test.py.icloud
-tests/test.py
-*.pdf
-test.py
 *.csv
-pymkup/tests/pypdf4_test.py
