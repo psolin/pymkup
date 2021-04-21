@@ -64,16 +64,16 @@ class pymkup:
                 pass
         return(markups_index)
 
+
     def markup_space(self, markup, spaces_list=[]):
+
         try:
             if markup['/P']:
                 spaces_list = self.markup_space(markup.P.BSISpaces[0], spaces_list + [markup.P.BSISpaces[0].Title[1:-1]]);
             else: spaces_list = self.markup_space(markup.Kids[0], spaces_list + [markup.Kids[0].Title[1:-1]]);
         except:
             pass
-        
         return(spaces_list)
-
 
     # Extracting the current document's column/property lists
     # I probably missed some various properties.
@@ -143,68 +143,29 @@ class pymkup:
             space_list = []
         return(space_dict)
 
+    def spacestree(self, spaces, spaces_tree, prevparent):
+        for item in spaces:
+            try:
+                pk = list[item.Title, prevparent]
+                spaces_tree.create_node(item.Title[1:-1], pk, parent=prevparent)
+                spaces_tree = self.spacestree(item.Kids, spaces_tree, pk)
+            except:
+                pass
+
+        return spaces_tree
+
     def spaces(self, output="dictionary"):
         spaces = self.get_all_spaces()
         page_labels = self.get_page_labels()
         spaces_tree = Tree()
+        
         #Add PDF name as top node
         spaces_tree.create_node(self.file_name, self.file_name)     
 
         #Add pages nodes
         for key, value in page_labels.items():
             spaces_tree.create_node(value, value, parent=self.file_name)
-
-        for space in spaces:
-            #This is way too much. Can support spaces 3 deep.
-
-            #Level 1
-            try:
-                for item in spaces[space]:
-                    pk = list[item.Title, space]
-                    spaces_tree.create_node(
-                            item.Title[1:-1], pk, parent=page_labels[space])
-            except:
-                pass
-
-            try:
-                for item in spaces[space][0].Kids:
-                    pk = list[spaces[space][0].Title, space]
-                    spaces_tree.create_node(
-                        item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
-                    if item.Kids is not None:
-                        for kid in item.Kids:
-                            pk = list[spaces[space].Title, space]
-                            spaces_tree.create_node(
-                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
-            except:
-                pass
-
-            #Level 2
-            try:
-                for item in spaces[space][0].Kids:
-                    pk = list[item.Title, space]
-                    spaces_tree.create_node(
-                        item.Title[1:-1], pk, parent=list[spaces[space][0].Title, space])
-                    if item.Kids is not None:
-                        for kid in item.Kids:
-                            pk = list[kid.Title, space]
-                            spaces_tree.create_node(
-                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Spaces[0].Title, space])
-            except:
-                pass
-
-            #Level 3
-            try:
-                for item in spaces[space][0].Kids[0].Kids:
-                    pk = list[item.Title, space]
-                    spaces_tree.create_node(
-                        item.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Title, space])
-                    if item.Kids is not None:
-                        for kid in item.Kids:
-                            spaces_tree.create_node(
-                            kid.Title[1:-1], pk, parent=list[spaces[space][0].Kids[0].Kids[0].Title, space])
-            except:
-                pass
+            spaces_tree = self.spacestree(spaces[key], spaces_tree, value)
 
         if output == "tree":
             return(spaces_tree)
@@ -404,6 +365,10 @@ class pymkup:
                         pass
                     elif("Space" in column): 
                         space = self.markup_space(markup)
+                        import pprint
+                        #print(, markup.P.BSISpaces[0].Kids[0], "\n")
+                        #KEEP THIS LINE BELOW
+                        #pprint.pprint(markup.P.BSISpaces[0])
                         if space is not None:
                             if space_hierarchy == True:
                                 if len(space) > 1:
