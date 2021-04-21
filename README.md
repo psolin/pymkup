@@ -41,7 +41,7 @@ columns = ['Subject', 'Label', 'Date', 'UUID', 'Space']
 x.markups(column_list=columns)
 ```
 
-### Example output of spaces() with output=tree ("test4.pdf")
+### Example output of spaces() with output=tree
 
 ```
 test4
