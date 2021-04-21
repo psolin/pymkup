@@ -15,6 +15,7 @@ class pymkup:
             self.file = file
             self.inpfn = os.path.dirname(os.path.realpath(__file__)) + self.file
             self.template_pdf = PdfReader(self.inpfn)
+
             # Checking if the PDF was authored by BB
             bb_check = "Bluebeam" in self.template_pdf.Info.Creator
             self.file_name = Path(self.inpfn).stem
@@ -64,6 +65,7 @@ class pymkup:
 
     # Extracting the current document's column/property lists
     def get_columns(self):
+
         columns_lookup = column_data        
 
         # Taking the current column list across pages in the file and putting it into in a dictionary
