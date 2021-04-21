@@ -64,21 +64,16 @@ class pymkup:
                 pass
         return(markups_index)
 
-    def markup_space(self, markup):
-        markup_spaces = {}
-        spaces_list = []
+    def markup_space(self, markup, spaces_list=[]):
         try:
-            if markup.P.BSISpaces:
-                #This is way too much. Can support spaces 6 deep...
-                spaces_list.append(markup.P.BSISpaces[0].Title[1:-1])
-                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Title[1:-1])
-                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Title[1:-1])
-                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
-                spaces_list.append(markup.P.BSISpaces[0].Kids[0].Kids[0].Kids[0].Kids[0].Kids[0].Title[1:-1])
+            if markup['/P']:
+                spaces_list = self.markup_space(markup.P.BSISpaces[0], spaces_list + [markup.P.BSISpaces[0].Title[1:-1]]);
+            else: spaces_list = self.markup_space(markup.Kids[0], spaces_list + [markup.Kids[0].Title[1:-1]]);
         except:
             pass
+        
         return(spaces_list)
+
 
     # Extracting the current document's column/property lists
     # I probably missed some various properties.
