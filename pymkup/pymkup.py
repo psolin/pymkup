@@ -3,7 +3,6 @@ import os
 import pdfrw
 from pdfrw.findobjs import find_objects
 from pdfrw import PdfReader
-from treelib import Node, Tree
 from pathlib import Path
 import csv
 from time import mktime, strptime
@@ -143,33 +142,29 @@ class pymkup:
             space_list = []
         return(space_dict)
 
-    def spacestree(self, spaces, spaces_tree, prevparent):
+    def spacesdict(self, spaces, prevparent):
         for item in spaces:
             try:
-                pk = list[item.Title, prevparent]
-                spaces_tree.create_node(item.Title[1:-1], pk, parent=prevparent)
-                spaces_tree = self.spacestree(item.Kids, spaces_tree, pk)
+                prevparent[item.Title[1:-1]] = {}
+                prevparent[item.Title[1:-1]] = self.spacesdict(item.Kids, {})
             except:
                 pass
 
-        return spaces_tree
+        return prevparent
 
     def spaces(self, output="dictionary"):
         spaces = self.get_all_spaces()
         page_labels = self.get_page_labels()
-        spaces_tree = Tree()
-        
-        #Add PDF name as top node
-        spaces_tree.create_node(self.file_name, self.file_name)     
+        spaces_dict = {}
 
-        #Add pages nodes
         for key, value in page_labels.items():
-            spaces_tree.create_node(value, value, parent=self.file_name)
-            spaces_tree = self.spacestree(spaces[key], spaces_tree, value)
+            spaces_dict[value] = self.spacesdict(spaces[key], {})
 
-        if output == "tree":
-            return(spaces_tree)
-        elif output == "hierarchy":
+        return spaces_dict
+
+        # Not sure if this is needed?
+        """ 
+        if output == "hierarchy":
             #Getting a master space hierarchy by column
             #Max depth starts calculating outside the doc name and sheet name
             max_depth = max([len(i) for i in spaces_tree.paths_to_leaves()]) - 2
@@ -189,11 +184,7 @@ class pymkup:
                     if str(space)[7:-6] not in space_dict[res]:
                         space_dict[res].append(str(space)[7:-6])
             return(space_dict)
-        else:
-            # Return the Python dictionary
-            spaces_dict = {'spaces' : []}
-            spaces_dict['spaces'].append(spaces_tree.to_dict())
-            return(spaces_dict)
+        """
 
     def feet_inches_convert(self, text):
         feet, sep, inches = text.rpartition("\'")
