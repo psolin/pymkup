@@ -136,3 +136,9 @@ no_mod = [
 
 #PDF Dates
 pdf_dates = ['/CreationDate', '/M']
+
+#lf columns
+lf_columns = [
+'/PolyLineDimension', 
+'/LineDimension', 
+'/CircleDimension']

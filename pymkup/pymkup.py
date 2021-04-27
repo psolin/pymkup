@@ -181,6 +181,33 @@ class pymkup:
             inches = float(inches)/12
         return(feet+inches)
 
+    def measurement_col(self, markup):
+        measurements = []
+        if("sf" in str(self.content_hex_convert(markup['/Contents']))):
+            sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
+            measurements.append(sf_measure[0], sf_measure[1])
+        elif(markup['/IT'] == "/PolygonCount"):
+            measurements.append([1, "ct"])
+        elif(markup['/IT'] in lf_columns):
+            measurements.append([
+                self.feet_inches_convert(self.content_hex_convert(markup['/Contents'])),
+                'lf'])
+        elif(markup['/IT'] == '/PolygonRadius'):
+            r_measure = self.content_hex_convert(markup['/Contents'])
+            measurements.append([
+                self.feet_inches_convert(r_measure),
+                'r ft'])
+        elif(markup['/IT'] == '/PolygonVolume'):
+            sf_measure = self.content_hex_convert(markup['/Contents']).split(" ", 1)
+            measurements.append([sf_measure[0], sf_measure[1]])
+        elif(markup['/IT'] == '/PolyLineAngle'):
+            measurements.append([
+                self.content_hex_convert(markup['/Contents']),
+                '∠'])
+        else:
+            pass
+        return(measurements[0])
+
     def markups(self, space_hierarchy=False, column_list="default"):
         all_columns = self.get_columns()
 
@@ -286,29 +313,9 @@ class pymkup:
                         row_dict[chosen_columns[column]] = self.measurement_types_convert(int(markup[column]))
                     #Handles imperial only for now
                     elif(column == 'Measurement'):
-                        if("sf" in str(self.content_hex_convert(markup['/Contents']))):
-                            sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
-                            row_dict['Measurement'] = sf_measure[0]
-                            row_dict['Type'] = sf_measure[1]
-                        elif(markup['/IT'] == "/PolygonCount"):
-                            row_dict['Measurement'] = 1
-                            row_dict['Type'] = "ct"
-                        elif(markup['/IT'] == "/PolyLineDimension" or
-                            markup['/IT'] == "/LineDimension" or
-                            markup['/IT'] == "/CircleDimension"):
-                            row_dict['Measurement'] = self.feet_inches_convert(self.content_hex_convert(markup['/Contents']))
-                            row_dict['Type'] = "lf"
-                        elif(markup['/IT'] == '/PolygonRadius'):
-                            r_measure = self.content_hex_convert(markup['/Contents'])
-                            row_dict['Measurement'] = self.feet_inches_convert(r_measure)
-                            row_dict['Type'] = 'r ft'
-                        elif(markup['/IT'] == '/PolygonVolume'):
-                            sf_measure = self.content_hex_convert(markup['/Contents']).split(" ", 1)
-                            row_dict['Measurement'] = sf_measure[0]
-                            row_dict['Type'] = sf_measure[1]
-                        elif(markup['/IT'] == '/PolyLineAngle'):
-                            row_dict['Measurement'] = self.content_hex_convert(markup['/Contents'])
-                            row_dict['Type'] = '∠'
+                        measurements = self.measurement_col(markup)
+                        row_dict['Measurement'] = measurements[0]
+                        row_dict['Type'] = measurements[1]
                     elif(column == "Type"):
                         pass
                     elif("Space" in column): 
