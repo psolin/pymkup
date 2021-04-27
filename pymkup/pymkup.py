@@ -245,9 +245,6 @@ class pymkup:
         except:
             pass
 
-        first_slice = ["/Type", "/CountStyle", "/Subtype"]
-        all_item = ["/NumCounts", '/Version', "/GroupNesting"]
-
         #Pull the data out
         for markup in self.get_markups_list():
             #Fresh row
