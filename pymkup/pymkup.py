@@ -155,36 +155,12 @@ class pymkup:
     def spaces(self, output="dictionary"):
         spaces = self.get_all_spaces()
         page_labels = self.get_page_labels()
-        spaces_dict = {}
+        data = {'spaces' : []}
 
         for key, value in page_labels.items():
-            spaces_dict[value] = self.spacesdict(spaces[key], {})
+            data['spaces'].append(self.spacesdict(spaces[key], {}))
 
-        return spaces_dict
-
-        # Not sure if this is needed?
-        """ 
-        if output == "hierarchy":
-            #Getting a master space hierarchy by column
-            #Max depth starts calculating outside the doc name and sheet name
-            max_depth = max([len(i) for i in spaces_tree.paths_to_leaves()]) - 2
-            space_depth = []
-            for level in range(max_depth):
-                space_depth.append("Space " + str(level + 1))
-            
-            #Create the dictionary to hold the values
-            space_dict = {} 
-            for idx, level in enumerate(space_depth):
-                space_dict[level] = []
-            
-            #Loop through all space items
-            for item in spaces_tree.paths_to_leaves():
-                for level, space in enumerate(item[2:]):
-                    res = list(space_dict.keys())[level]
-                    if str(space)[7:-6] not in space_dict[res]:
-                        space_dict[res].append(str(space)[7:-6])
-            return(space_dict)
-        """
+        return data
 
     def feet_inches_convert(self, text):
         feet, sep, inches = text.rpartition("\'")
