@@ -43,7 +43,6 @@ x.markups(column_list=columns)
 
 ## Requirements
 - pdfrw is a library for scraping PDF data in Python and doing some other manipulaton.
-- treelib is a library to create ASCII hierarchy trees in the spaces_tree() function.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
