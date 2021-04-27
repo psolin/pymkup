@@ -19,7 +19,7 @@ pip install pymkup
 ```python
 from pymkup import pymkup
 x = pymkup("link to your Revu PDF")
-x.spaces() # Generates a spaces dictionary three levels deep.
+x.spaces() # Returns JSON dictionary of document spaces.
 x.markups() # Returns JSON dictionary of markups.
 ```
 
@@ -39,25 +39,6 @@ Lastly, you can build the custom columns that you want to see returned:
 ```python
 columns = ['Subject', 'Label', 'Date', 'UUID', 'Space']
 x.markups(column_list=columns)
-```
-
-### Example output of spaces() with output=tree
-
-```
-test4
-├── A101
-│   ├── Level 1
-│   │   └── Area A
-│   │       ├── Room 101
-│   │       ├── Room 102
-│   │       └── Room 103
-│   └── Sub Level
-└── Page 2
-    └── Level 1
-        └── Area B
-            ├── Room 151
-            │   └── Sub-Room
-            └── Room 152
 ```
 
 ## Requirements
