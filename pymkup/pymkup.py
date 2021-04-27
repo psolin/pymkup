@@ -63,6 +63,8 @@ class pymkup:
                 pass
         return(markups_index)
 
+    # Runs through '/P' to get a Spaces list
+    # Needs to be recoded entrirely per issue #18
     def markup_space(self, markup, spaces_list=[]):
         try:
             if markup['/P']:
@@ -75,7 +77,6 @@ class pymkup:
 
 
     # Extracting the current document's column/property lists
-    # I probably missed some various properties.
     def get_columns(self):
         columns_lookup = column_data        
 
@@ -128,7 +129,7 @@ class pymkup:
 
         return(content)
 
-
+    # Dump of all spaces in each page
     def get_all_spaces(self):
         space_list = []
         space_dict = {}
@@ -142,6 +143,7 @@ class pymkup:
             space_list = []
         return(space_dict)
 
+    # Iterates through the spaces dictionary
     def spacesdict(self, spaces, prevparent):
         for item in spaces:
             try:
