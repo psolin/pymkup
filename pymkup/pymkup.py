@@ -8,7 +8,7 @@ import csv
 from time import mktime, strptime
 from datetime import datetime
 from fractions import Fraction
-from columndata import column_data
+from columndata import *
 
 class pymkup:
     def __init__(self, file):
@@ -245,6 +245,9 @@ class pymkup:
         except:
             pass
 
+        first_slice = ["/Type", "/CountStyle", "/Subtype"]
+        all_item = ["/NumCounts", '/Version', "/GroupNesting"]
+
         #Pull the data out
         for markup in self.get_markups_list():
             #Fresh row
@@ -267,26 +270,9 @@ class pymkup:
                     elif(column == 'Page Label'):
                         if(markup_index[markup.NM] is not None):
                             row_dict['Page Label'] = page_label_index[markup_index[markup.NM]]
-                    elif(
-                        column == '/Type' or 
-                        column == '/CountStyle' or 
-                        column == '/Subtype'):
+                    elif(column in first_slice):
                         row_dict[chosen_columns[column]] = markup[column][1:]
-                    elif(
-                        column == '/NumCounts' or
-                        column == '/Version' or
-                        column == '/GroupNesting' or
-                        column == '/Version' or
-                        column == '/F' or
-                        column == '/BS' or
-                        column == '/IC' or
-                        column == '/DS' or
-                        column == '/BSIColumnData' or
-                        column == '/Vertices' or
-                        column == '/Rect' or
-                        column == '/Version' or
-                        column == '/BBMeasure' or
-                        column == '/CA'):
+                    elif(column in no_mod):
                         row_dict[chosen_columns[column]] = markup[column]
                     elif(column == '/DepthUnit'):
                         row_dict[chosen_columns[column]] = markup[column][0]
@@ -294,9 +280,7 @@ class pymkup:
                         row_dict[chosen_columns[column]] = self.content_hex_convert(markup[column])
                     elif(column == '/AP'):
                         row_dict[chosen_columns[column]] = markup[column].N
-                    elif(
-                        column == '/CreationDate' or
-                        column == '/M'):
+                    elif(column in pdf_dates):
                         datestring = markup[column][3:-8]
                         ts = strptime(datestring, "%Y%m%d%H%M%S")
                         dt = datetime.fromtimestamp(mktime(ts))

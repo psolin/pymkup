@@ -109,3 +109,30 @@ column_data = {
         # Rectangle differences
         '/RD' : 'RD'
 }
+
+
+# Group by data output formatting
+
+#markup[column][1:]
+first_slice = ['/Type', '/CountStyle', '/Subtype']
+
+#markup[column]
+no_mod = [
+'/NumCounts', 
+'/Version', 
+'/GroupNesting', 
+'/Version', 
+'/F', 
+'/BS', 
+'/IC',
+'/DS',
+'/BSIColumnData',
+'/Vertices',
+'/Rect',
+'/Version',
+'/BBMeasure',
+'/CA'
+]
+
+#PDF Dates
+pdf_dates = ['/CreationDate', '/M']
