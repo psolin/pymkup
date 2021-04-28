@@ -210,6 +210,15 @@ class pymkup:
             pass
         return(measurements[0])
 
+    def space_markup(self, markup):
+        space = self.markup_space(markup)
+        
+        if space is not None:
+            if len(space) > 1:
+                return('-'.join(space))
+            else:
+                return(space[0])
+
     def markups(self, space_hierarchy=False, column_list="default"):
         all_columns = self.get_columns()
 
@@ -231,13 +240,8 @@ class pymkup:
             '/T': 'Author', 
             '/M': 'Date', 
             '/Contents': 'Comments', 
-            '/OC': 'Layer'}
-            if(space_hierarchy == True):
-               spaces_dump = self.spaces(output="hierarchy")
-               for space in spaces_dump:
-                    chosen_columns[space] = space
-            else:
-                chosen_columns['Space'] = 'Space'
+            '/OC': 'Layer',
+            'Space': 'Space'}
         else:
             chosen_columns = {}
             for item in column_list:
@@ -320,18 +324,8 @@ class pymkup:
                         row_dict['Type'] = measurements[1]
                     elif(column == "Type"):
                         pass
-                    elif("Space" in column): 
-                        space = self.markup_space(markup)
-
-                        if space is not None:
-                            if space_hierarchy == True:
-                                if len(space) > 1:
-                                    for k, v in spaces_dump.items():
-                                        for s in space:
-                                            if s in v:
-                                                row_dict[k] = s
-                            else:
-                                row_dict[chosen_columns[column]] = '-'.join(space)
+                    #elif("Space" in column): 
+                        #row_dict['Space'] = self.space_markup(markup)
                     elif(markup[column] is not None):
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
                     else:
