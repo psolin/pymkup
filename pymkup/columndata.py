@@ -142,3 +142,10 @@ lf_columns = [
 '/PolyLineDimension', 
 '/LineDimension', 
 '/CircleDimension']
+
+custom_columns = [
+'Measurement', 
+'Type', 
+'Page Label', 
+'Page Number', 
+'Space']

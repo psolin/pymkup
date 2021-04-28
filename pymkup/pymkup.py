@@ -219,14 +219,12 @@ class pymkup:
             else:
                 return(space[0])
 
-    def markups(self, space_hierarchy=False, column_list="default"):
+    def markups(self, column_list="default"):
         all_columns = self.get_columns()
 
         #Get out of there if no markups
         if(len(all_columns) == 0):
             return()
-
-        custom_columns = ['Measurement', 'Type', 'Page Label', 'Page Number']
 
         if column_list == "default":
             chosen_columns = {
@@ -249,10 +247,6 @@ class pymkup:
                     if(all_columns[idx] == item):
                         chosen_columns[idx] = item
                     #Adds the custom column where I can generate info
-                    if(item == 'Space' and space_hierarchy == True):
-                        spaces_dump = self.spaces(output="hierarchy")
-                        for space in spaces_dump:
-                            chosen_columns[space] = space
                     if(item == 'Measurement'):
                         chosen_columns['Measurement'] = 'Measurement'
                         chosen_columns['Type'] = 'Type'
@@ -288,8 +282,7 @@ class pymkup:
                 if markup['/Subj'] is None:
                     break
                 elif((markup[column]) or 
-                column in custom_columns or
-                'Space' in column):
+                column in custom_columns):
                     if(column == '/OC'):
                         row_dict[chosen_columns['/OC']] = markup['/OC'].Name[1:-1]
                     elif(column == '/IT'):
@@ -324,6 +317,7 @@ class pymkup:
                         row_dict['Type'] = measurements[1]
                     elif(column == "Type"):
                         pass
+                    # Disabling spaces until it is fixed.
                     #elif("Space" in column): 
                         #row_dict['Space'] = self.space_markup(markup)
                     elif(markup[column] is not None):
