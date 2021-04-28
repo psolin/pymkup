@@ -99,17 +99,6 @@ class pymkup:
 
         return(column_dict)
 
-    # /MeasurementTypes conversion to something more meaningful
-    def measurement_types_convert(self, markup):
-        measurement_types = {}
-        measurement_types[128] = "Count"
-        measurement_types[129] = "Shape"
-        measurement_types[130] = "Length"
-        measurement_types[132] = "Volume"
-        measurement_types[384] = "Diameter"
-        measurement_types[1152] = "Angle"
-        return(measurement_types[markup])
-
     # /Contents conversion into something more meaningful
     def content_hex_convert(self, content):
         if content == None:
@@ -227,19 +216,7 @@ class pymkup:
             return()
 
         if column_list == "default":
-            chosen_columns = {
-            '/Subj': 'Subject', 
-            'Page Label': 'Page Label',
-            'Page Number' : 'Page Number',  
-            '/Label': 'Label', 
-            'Measurement' : 'Measurement',
-            'Type' : 'Type',
-            '/CreationDate': 'Creation Date',  
-            '/T': 'Author', 
-            '/M': 'Date', 
-            '/Contents': 'Comments', 
-            '/OC': 'Layer',
-            'Space': 'Space'}
+            chosen_columns = default_columns
         else:
             chosen_columns = {}
             for item in column_list:
@@ -309,7 +286,7 @@ class pymkup:
                         dt = datetime.fromtimestamp(mktime(ts))
                         row_dict[chosen_columns[column]] = dt
                     elif(column == '/MeasurementTypes'):
-                        row_dict[chosen_columns[column]] = self.measurement_types_convert(int(markup[column]))
+                        row_dict[chosen_columns[column]] = measurement_types[int(markup[column])]
                     #Handles imperial only for now
                     elif(column == 'Measurement'):
                         measurements = self.measurement_col(markup)

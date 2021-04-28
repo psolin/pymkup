@@ -137,11 +137,14 @@ no_mod = [
 #PDF Dates
 pdf_dates = ['/CreationDate', '/M']
 
-#lf columns
+#lf column values
 lf_columns = [
 '/PolyLineDimension', 
 '/LineDimension', 
 '/CircleDimension']
+
+
+# Other column data
 
 custom_columns = [
 'Measurement', 
@@ -149,3 +152,25 @@ custom_columns = [
 'Page Label', 
 'Page Number', 
 'Space']
+
+default_columns = {
+            '/Subj': 'Subject', 
+            'Page Label': 'Page Label',
+            'Page Number' : 'Page Number',  
+            '/Label': 'Label', 
+            'Measurement' : 'Measurement',
+            'Type' : 'Type',
+            '/CreationDate': 'Creation Date',  
+            '/T': 'Author', 
+            '/M': 'Date', 
+            '/Contents': 'Comments', 
+            '/OC': 'Layer',
+            'Space': 'Space'}
+
+measurement_types = {
+        128: "Count",
+        129: "Shape",
+        130: "Length",
+        132: "Volume",
+        384: "Diameter",
+        1152: "Angle"}
