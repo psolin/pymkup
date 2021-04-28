@@ -286,7 +286,7 @@ class pymkup:
                         dt = datetime.fromtimestamp(mktime(ts))
                         row_dict[chosen_columns[column]] = dt
                     elif(column == '/MeasurementTypes'):
-                        row_dict[chosen_columns[column]] = measurement_types[int(markup[column])]
+                        row_dict[chosen_columns[column]] = measurement_types[markup[column]]
                     #Handles imperial only for now
                     elif(column == 'Measurement'):
                         measurements = self.measurement_col(markup)

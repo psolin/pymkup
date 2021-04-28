@@ -32,12 +32,12 @@ x.get_columns().values()
 
 Second, you should review the extended columns here that can also be added:
 ```python
-['Space', 'Page Number', 'Page Label', 'Measurement']
+['Page Number', 'Page Label', 'Measurement']
 ```
 
 Lastly, you can build the custom columns that you want to see returned:
 ```python
-columns = ['Subject', 'Label', 'Date', 'UUID', 'Space']
+columns = ['Subject', 'Label', 'Date', 'UUID']
 x.markups(column_list=columns)
 ```
 

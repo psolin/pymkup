@@ -168,9 +168,9 @@ default_columns = {
             'Space': 'Space'}
 
 measurement_types = {
-        128: "Count",
-        129: "Shape",
-        130: "Length",
-        132: "Volume",
-        384: "Diameter",
-        1152: "Angle"}
+        '128': "Count",
+        '129': "Shape",
+        '130': "Length",
+        '132': "Volume",
+        '384': "Diameter",
+        '1152': "Angle"}
