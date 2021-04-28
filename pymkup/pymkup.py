@@ -1,10 +1,8 @@
 import sys
 import os
 import pdfrw
-from pdfrw.findobjs import find_objects
 from pdfrw import PdfReader
 from pathlib import Path
-import csv
 from time import mktime, strptime
 from datetime import datetime
 from fractions import Fraction
@@ -173,7 +171,9 @@ class pymkup:
                             true_check += 1
                         if(true_check == len(poly_points)):
                             markup_spaces.append(key)
-        return(markup_spaces)
+            return(markup_spaces)
+        else:
+            return
 
     def feet_inches_convert(self, text):
         feet, sep, inches = text.rpartition("\'")
@@ -198,7 +198,7 @@ class pymkup:
         measurements = []
         if("sf" in str(self.content_hex_convert(markup['/Contents']))):
             sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
-            measurements.append(sf_measure[0], sf_measure[1])
+            measurements.append([sf_measure[0], sf_measure[1]])
         elif(markup['/IT'] == "/PolygonCount"):
             measurements.append([1, "ct"])
         elif(markup['/IT'] in lf_columns):
@@ -315,10 +315,12 @@ class pymkup:
                         row_dict['Type'] = measurements[1]
                     elif(column == "Type"):
                         pass
-                    # Disabling spaces until it is fixed.
-                    elif("Space" in column): 
-                        spaces_join = '-'.join(self.markup_space(markup, markup_index[markup.NM], spaces_vertices))
-                        row_dict['Space'] = spaces_join
+                    elif("Space" in column):
+                        try:
+                            spaces_join = '-'.join(self.markup_space(markup, markup_index[markup.NM], spaces_vertices))
+                            row_dict['Space'] = spaces_join
+                        except:
+                            pass
                     elif(markup[column] is not None):
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
                     else:
