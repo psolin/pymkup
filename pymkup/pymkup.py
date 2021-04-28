@@ -9,6 +9,8 @@ from time import mktime, strptime
 from datetime import datetime
 from fractions import Fraction
 from columndata import *
+#from shapely.geometry import Point
+#from shapely.geometry.polygon import Polygon
 
 class pymkup:
     def __init__(self, file):
@@ -63,19 +65,6 @@ class pymkup:
                 pass
         return(markups_index)
 
-    # Runs through '/P' to get a Spaces list
-    # Needs to be recoded entrirely per issue #18
-    def markup_space(self, markup, spaces_list=[]):
-        try:
-            if markup['/P']:
-                spaces_list = self.markup_space(markup.P.BSISpaces[0], spaces_list + [markup.P.BSISpaces[0].Title[1:-1]]);
-            else: spaces_list = self.markup_space(markup.Kids[0], spaces_list + [markup.Kids[0].Title[1:-1]]);
-        except:
-            pass
-
-        return(spaces_list)
-
-
     # Extracting the current document's column/property lists
     def get_columns(self):
         columns_lookup = column_data        
@@ -118,7 +107,7 @@ class pymkup:
 
         return(content)
 
-    # Dump of all spaces in each page
+    # Dump of all spaces by page
     def get_all_spaces(self):
         space_list = []
         space_dict = {}
@@ -132,10 +121,12 @@ class pymkup:
             space_list = []
         return(space_dict)
 
+    spaces_path = {}
     # Iterates through the spaces dictionary
     def spacesdict(self, spaces, prevparent):
         for item in spaces:
             try:
+                self.spaces_path[item.Title[1:-1]] = item.Path
                 prevparent[item.Title[1:-1]] = {}
                 prevparent[item.Title[1:-1]] = self.spacesdict(item.Kids, {})
             except:
@@ -151,7 +142,25 @@ class pymkup:
         for key, value in page_labels.items():
             data['spaces'].append(self.spacesdict(spaces[key], {}))
 
-        return data
+        if(output == 'dictionary'):
+            return data
+
+        if(output == 'vertices'):
+            return(self.spaces_path)
+
+    def markup_space(self, markup, spaces_list=[]):
+        if(markup['/Vertices']):
+            return(markup.Vertices)
+        '''    
+        try:
+            if markup['/P']:
+                spaces_list = self.markup_space(markup.P.BSISpaces[0], spaces_list + [markup.P.BSISpaces[0].Title[1:-1]]);
+            else: spaces_list = self.markup_space(markup.Kids[0], spaces_list + [markup.Kids[0].Title[1:-1]]);
+        except:
+            pass
+        '''
+
+        return(spaces_list)
 
     def feet_inches_convert(self, text):
         feet, sep, inches = text.rpartition("\'")
@@ -296,6 +305,7 @@ class pymkup:
                         pass
                     # Disabling spaces until it is fixed.
                     #elif("Space" in column): 
+                        #print(self.markup_space(markup))
                         #row_dict['Space'] = self.space_markup(markup)
                     elif(markup[column] is not None):
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
