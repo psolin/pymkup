@@ -20,7 +20,7 @@ class pymkup:
             bb_check = "Bluebeam" in self.template_pdf.Info.Creator
             self.file_name = Path(self.inpfn).stem
         except:
-            pass
+            print(self.inpfn, "doesnt exist.")
 
     # Extract the page labels into a dictionary
     #This is broken for some files because of the hierarchy.
