@@ -25,5 +25,5 @@ setup(
     ],
     packages=["pymkup"],
     include_package_data=True,
-    install_requires=["pdfrw", "treelib"]
+    install_requires=["pdfrw", "shapely"]
 )

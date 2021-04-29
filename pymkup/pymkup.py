@@ -63,20 +63,6 @@ class pymkup:
                 pass
         return(markups_index)
 
-<<<<<<< HEAD
-=======
-    def markup_space(self, markup, spaces_list=[]):
-        try:
-            if markup['/P']:
-                spaces_list = self.markup_space(markup.P.BSISpaces[0], spaces_list + [markup.P.BSISpaces[0].Title[1:-1]]);
-            else: spaces_list = self.markup_space(markup.Kids[0], spaces_list + [markup.Kids[0].Title[1:-1]]);
-        except:
-            pass
-        
-        return(spaces_list)
-
-
->>>>>>> 981f835 (recoded markup_space to be a recursive function)
     # Extracting the current document's column/property lists
     def get_columns(self):
 
