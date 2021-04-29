@@ -1,13 +1,17 @@
-import sys
 import os
-import pdfrw
-from pdfrw import PdfReader
-from pathlib import Path
-from time import mktime, strptime
+import sys
 from datetime import datetime
 from fractions import Fraction
+from pathlib import Path
+from time import mktime
+from time import strptime
+
+import pdfrw
 from columndata import *
-from shapely.geometry import Point, LineString, Polygon
+from pdfrw import PdfReader
+from shapely.geometry import LineString
+from shapely.geometry import Point
+from shapely.geometry import Polygon
 
 class pymkup:
     def __init__(self, file):
@@ -66,7 +70,7 @@ class pymkup:
     # Extracting the current document's column/property lists
     def get_columns(self):
 
-        columns_lookup = column_data        
+        columns_lookup = column_data
 
         # Taking the current column list across pages in the file and putting it into in a dictionary
         column_list = []
@@ -91,7 +95,7 @@ class pymkup:
     def content_hex_convert(self, content):
         if content == None:
             return(None)
-        
+
         try:
             if ("feff" in content):
                 content = content.decode_hex()
@@ -281,7 +285,7 @@ class pymkup:
                 #Too much confusion.
                 if markup['/Subj'] is None:
                     break
-                elif((markup[column]) or 
+                elif((markup[column]) or
                 column in custom_columns):
                     if(column == '/OC'):
                         row_dict[chosen_columns['/OC']] = markup['/OC'].Name[1:-1]

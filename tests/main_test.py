@@ -1,5 +1,6 @@
-from pymkup import pymkup
 import pytest
+
+from pymkup import pymkup
 
 pytest.filename = "\\tests\\markup-deep-spaces.pdf"
 
