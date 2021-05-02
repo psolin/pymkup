@@ -216,6 +216,8 @@ class Pymkup:
                         measurements = measurement_col(markup)
                         row_dict['Measurement'] = measurements[0]
                         row_dict['Type'] = measurements[1]
+                    elif column in color_columns:
+                        row_dict[chosen_columns[column]] = color_to_num(markup[column])
                     elif column == "Type":
                         pass
                     elif "Space" in column:

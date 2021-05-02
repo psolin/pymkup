@@ -56,7 +56,8 @@ x.markups(column_list=columns)
 - pdfrw is a library for scraping PDF data in Python and doing some other manipulaton.
 - shapely to build Spaces.
 - tox to run virtualenv tests.
-- pytest for unit testing .
+- pytest for unit testing.
+- colormap/easydev for converting colors.
 
 ## Dev Testing
 

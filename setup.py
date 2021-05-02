@@ -26,5 +26,5 @@ setup(
     ],
     packages=["pymkup"],
     include_package_data=True,
-    install_requires=["pdfrw", "shapely"]
+    install_requires=["pdfrw", "shapely", "colormap", "easydev"]
 )

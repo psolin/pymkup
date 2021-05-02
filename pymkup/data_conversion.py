@@ -5,7 +5,7 @@ from shapely.geometry import Point, Polygon
 from datetime import datetime
 from time import mktime
 from time import strptime
-
+from colormap import Color
 
 def tuple_float(point_list):
     poly_points_int = []
@@ -120,3 +120,10 @@ def date_string(markup):
     ts = strptime(datestring, "%Y%m%d%H%M%S")
     dt = datetime.fromtimestamp(mktime(ts))
     return dt
+
+
+def color_to_num(color_string):
+    for i in range(0, len(color_string)):
+        color_string[i] = int(color_string[i])
+    tuple(color_string)
+    return Color(rgb=color_string).hex

@@ -119,7 +119,6 @@ no_mod = [
     '/Version',
     '/F',
     '/BS',
-    '/IC',
     '/DS',
     '/BSIColumnData',
     '/Vertices',
@@ -131,6 +130,11 @@ no_mod = [
 
 # PDF Dates
 pdf_dates = ['/CreationDate', '/M']
+
+color_columns = [
+    '/C',
+    '/IC'
+]
 
 # lf column values
 lf_columns = [
