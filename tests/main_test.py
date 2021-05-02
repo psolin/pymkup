@@ -2,7 +2,7 @@ import pytest
 
 from pymkup import pymkup
 
-pytest.filename = "\\tests\\markup-deep-spaces.pdf"
+pytest.filename = "/tests/markup-deep-spaces.pdf"
 
 
 def test_spaces_returned_dict():
