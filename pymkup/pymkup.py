@@ -5,7 +5,7 @@ from column_data import *
 from data_conversion import *
 
 
-class pymkup:
+class Pymkup:
     def __init__(self, file):
         try:
             self.file = file

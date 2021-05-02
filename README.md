@@ -28,8 +28,8 @@ pip install pymkup
 ## Usage
 
 ```python
-from pymkup import pymkup
-x = pymkup("link to your Revu PDF")
+from pymkup import Pymkup
+x = Pymkup("link to your Revu PDF")
 x.spaces()  # Returns JSON dictionary of document spaces.
 x.markups()  # Returns JSON dictionary of markups.
 ```
