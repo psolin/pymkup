@@ -13,33 +13,35 @@ from shapely.geometry import LineString
 from shapely.geometry import Point
 from shapely.geometry import Polygon
 
+
 class pymkup:
     def __init__(self, file):
         try:
             self.file = file
-            self.inpfn = os.path.dirname(os.path.realpath(__file__)) + self.file
+            self.inpfn = os.path.dirname(os.path.realpath(__file__)) \
+                + self.file
             self.template_pdf = PdfReader(self.inpfn)
 
             # Checking if the PDF was authored by BB
             bb_check = "Bluebeam" in self.template_pdf.Info.Creator
             self.file_name = Path(self.inpfn).stem
-        except:
+        except Exception:
             print(self.inpfn, "doesnt exist.")
 
     # Extract the page labels into a dictionary
-    #This is broken for some files because of the hierarchy.
+    # This is broken for some files because of the hierarchy.
     def get_page_labels(self):
         page_label_dict = {}
-        #This will work if there are any page labels
+        # This will work if there are any page labels
         try:
             page_num_list = self.template_pdf.Root.PageLabels.Nums
             for idx, page in enumerate(page_num_list[1::2]):
                 try:
                     page_label_dict[idx] = page.P[1:-1]
-                except:
+                except Exception:
                     page_label_dict[idx] = "Page " + str(idx + 1)
-        #Otherwise, do a mass naming scheme
-        except:
+        # Otherwise, do a mass naming scheme
+        except Exception:
             for idx, page in enumerate(self.template_pdf.pages):
                 page_label_dict[idx] = "Page " + str(idx + 1)
 
@@ -52,7 +54,7 @@ class pymkup:
             try:
                 for num, annotation in enumerate(page.Annots):
                     markups_list.append(annotation)
-            except:
+            except Exception:
                 pass
         return(markups_list)
 
@@ -63,7 +65,7 @@ class pymkup:
             try:
                 for num, annotation in enumerate(page.Annots):
                     markups_index[annotation.NM] = idx
-            except:
+            except Exception:
                 pass
         return(markups_index)
 
@@ -72,14 +74,15 @@ class pymkup:
 
         columns_lookup = column_data
 
-        # Taking the current column list across pages in the file and putting it into in a dictionary
+        # Taking the current column list across pages in the file and putting
+        # it into in a dictionary
         column_list = []
         column_dict = {}
         for page in range(0, len(self.template_pdf.pages)):
             try:
                 for columns in self.template_pdf.pages[page].Annots[0]:
                     column_list.append(columns)
-            except:
+            except Exception:
                 pass
 
         # Remove dupes
@@ -93,7 +96,7 @@ class pymkup:
 
     # /Contents conversion into something more meaningful
     def content_hex_convert(self, content):
-        if content == None:
+        if content is None:
             return(None)
 
         try:
@@ -101,10 +104,10 @@ class pymkup:
                 content = content.decode_hex()
                 content = content.decode('utf-16')
                 content = content.splitlines()[1]
-        except:
+        except Exception:
             pass
 
-        #Remove the parenthesis
+        # Remove the parenthesis
         if(content[0] == "("):
             content = content[1:-1]
 
@@ -118,7 +121,7 @@ class pymkup:
             try:
                 for space in page.BSISpaces:
                     space_list.append(space)
-            except:
+            except Exception:
                 pass
             space_dict[idx] = space_list
             space_list = []
@@ -128,10 +131,11 @@ class pymkup:
     def spacesdict(self, spaces, key, prevparent):
         for item in spaces:
             try:
-                self.spaces_path[key].append({item.Title[1:-1] : item.Path})
+                self.spaces_path[key].append({item.Title[1:-1]: item.Path})
                 prevparent[item.Title[1:-1]] = {}
-                prevparent[item.Title[1:-1]] = self.spacesdict(item.Kids, key, {})
-            except:
+                prevparent[item.Title[1:-1]] \
+                    = self.spacesdict(item.Kids, key, {})
+            except Exception:
                 pass
 
         return prevparent
@@ -140,7 +144,7 @@ class pymkup:
         self.spaces_path = {}
         spaces = self.get_all_spaces()
         page_labels = self.get_page_labels()
-        data = {'spaces' : []}
+        data = {'spaces': []}
 
         for key, value in page_labels.items():
             self.spaces_path[key] = []
@@ -163,7 +167,8 @@ class pymkup:
         if(markup['/Vertices']):
             markup_spaces = []
             # Convert markup.Rect to something moreusable
-            markup_rect = [*zip(list(markup.Vertices)[::2], list(markup.Vertices)[1::2])]
+            markup_rect = [*zip(list(markup.Vertices)[::2],
+                                list(markup.Vertices)[1::2])]
             markup_rect = self.tuple_float(markup_rect)
 
             for space_vert in spaces_vertices[page_index]:
@@ -173,7 +178,7 @@ class pymkup:
                     space_polygon = Polygon(poly_points)
                     true_check = 0
                     for point in markup_rect:
-                        if(space_polygon.contains(Point(point)) == True):
+                        if(space_polygon.contains(Point(point)) is True):
                             true_check += 1
                         if(true_check == len(poly_points)):
                             markup_spaces.append(key)
@@ -203,13 +208,15 @@ class pymkup:
     def measurement_col(self, markup):
         measurements = []
         if("sf" in str(self.content_hex_convert(markup['/Contents']))):
-            sf_measure = self.content_hex_convert(markup['/Contents']).split(' ')
+            sf_measure = self.content_hex_convert(
+                markup['/Contents']).split(' ')
             measurements.append([sf_measure[0], sf_measure[1]])
         elif(markup['/IT'] == "/PolygonCount"):
             measurements.append([1, "ct"])
         elif(markup['/IT'] in lf_columns):
             measurements.append([
-                self.feet_inches_convert(self.content_hex_convert(markup['/Contents'])),
+                self.feet_inches_convert(self.content_hex_convert(
+                    markup['/Contents'])),
                 'lf'])
         elif(markup['/IT'] == '/PolygonRadius'):
             r_measure = self.content_hex_convert(markup['/Contents'])
@@ -217,17 +224,19 @@ class pymkup:
                 self.feet_inches_convert(r_measure),
                 'r ft'])
         elif(markup['/IT'] == '/PolygonVolume'):
-            sf_measure = self.content_hex_convert(markup['/Contents']).split(" ", 1)
+            sf_measure = self.content_hex_convert(
+                markup['/Contents']).split(" ", 1)
             measurements.append([sf_measure[0], sf_measure[1]])
         elif(markup['/IT'] == '/PolyLineAngle'):
             measurements.append([
                 self.content_hex_convert(markup['/Contents']),
                 'angle'])
         elif(markup.Subtype == '/PolyLine'):
-            markup_rect = [*zip(list(markup.Vertices)[::2], list(markup.Vertices)[1::2])]
+            markup_rect = [*zip(list(markup.Vertices)[::2],
+                                list(markup.Vertices)[1::2])]
             markup_rect = self.tuple_float(markup_rect)
             line = LineString(markup_rect)
-            measurements = [[line.length,'length']]
+            measurements = [[line.length, 'length']]
         else:
             pass
         return(measurements[0])
@@ -235,7 +244,7 @@ class pymkup:
     def markups(self, column_list="default"):
         all_columns = self.get_columns()
 
-        #Get out of there if no markups
+        # Get out of there if no markups
         if(len(all_columns) == 0):
             return()
 
@@ -247,7 +256,7 @@ class pymkup:
                 for idx in all_columns:
                     if(all_columns[idx] == item):
                         chosen_columns[idx] = item
-                    #Adds the custom column where I can generate info
+                    # Adds the custom column where I can generate info
                     if(item == 'Measurement'):
                         chosen_columns['Measurement'] = 'Measurement'
                         chosen_columns['Type'] = 'Type'
@@ -259,44 +268,47 @@ class pymkup:
         if('Space' in chosen_columns_keys):
             spaces_vertices = self.spaces(output="vertices")
 
-        data = {'markups' : []}
+        data = {'markups': []}
 
-        #Handles Page Number
+        # Handles Page Number
         try:
             if(chosen_columns['Page Number']):
                 markup_index = self.get_markups_index()
-        except:
+        except Exception:
             pass
 
-        #Handles Page Label
+        # Handles Page Label
         try:
             if(chosen_columns['Page Label']):
                 markup_index = self.get_markups_index()
                 page_label_index = self.get_page_labels()
-        except:
+        except Exception:
             pass
 
-        #Pull the data out
+        # Pull the data out
         for markup in self.get_markups_list():
-            #Fresh row
+            # Fresh row
             row = []
             row_dict = {}
             for column in chosen_columns_keys:
-                #Too much confusion.
+                # Too much confusion.
                 if markup['/Subj'] is None:
                     break
                 elif((markup[column]) or
-                column in custom_columns):
+                        column in custom_columns):
                     if(column == '/OC'):
-                        row_dict[chosen_columns['/OC']] = markup['/OC'].Name[1:-1]
+                        row_dict[chosen_columns['/OC']] \
+                            = markup['/OC'].Name[1:-1]
                     elif(column == '/IT'):
                         row_dict[chosen_columns[column]] = markup[column]
-                    #Subject is needed to filter down results
+                    # Subject is needed to filter down results
                     elif(column == 'Page Number'):
-                        row_dict[chosen_columns[column]] = markup_index[markup.NM]+1
+                        row_dict[chosen_columns[column]] \
+                            = markup_index[markup.NM]+1
                     elif(column == 'Page Label'):
                         if(markup_index[markup.NM] is not None):
-                            row_dict['Page Label'] = page_label_index[markup_index[markup.NM]]
+                            row_dict['Page Label'] \
+                                = page_label_index[markup_index[markup.NM]]
                     elif(column in first_slice):
                         row_dict[chosen_columns[column]] = markup[column][1:]
                     elif(column in no_mod):
@@ -304,7 +316,8 @@ class pymkup:
                     elif(column == '/DepthUnit'):
                         row_dict[chosen_columns[column]] = markup[column][0]
                     elif(column == '/Contents'):
-                        row_dict[chosen_columns[column]] = self.content_hex_convert(markup[column])
+                        row_dict[chosen_columns[column]] \
+                            = self.content_hex_convert(markup[column])
                     elif(column == '/AP'):
                         row_dict[chosen_columns[column]] = markup[column].N
                     elif(column in pdf_dates):
@@ -313,8 +326,9 @@ class pymkup:
                         dt = datetime.fromtimestamp(mktime(ts))
                         row_dict[chosen_columns[column]] = dt
                     elif(column == '/MeasurementTypes'):
-                        row_dict[chosen_columns[column]] = measurement_types[markup[column]]
-                    #Handles imperial only for now
+                        row_dict[chosen_columns[column]] \
+                            = measurement_types[markup[column]]
+                    # Handles imperial only for now
                     elif(column == 'Measurement'):
                         measurements = self.measurement_col(markup)
                         row_dict['Measurement'] = measurements[0]
@@ -323,9 +337,11 @@ class pymkup:
                         pass
                     elif("Space" in column):
                         try:
-                            spaces_join = '-'.join(self.markup_space(markup, markup_index[markup.NM], spaces_vertices))
+                            spaces_join = '-'.join(self.markup_space(markup,
+                                                   markup_index[markup.NM],
+                                                   spaces_vertices))
                             row_dict['Space'] = spaces_join
-                        except:
+                        except Exception:
                             pass
                     elif(markup[column] is not None):
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
@@ -333,6 +349,6 @@ class pymkup:
                         pass
                 else:
                     pass
-            if(len(row_dict)>0):
+            if(len(row_dict) > 0):
                 data['markups'].append(row_dict)
         return(data)
