@@ -7,6 +7,7 @@ from time import mktime
 from time import strptime
 from colormap import Color
 
+
 def tuple_float(point_list):
     poly_points_int = []
     for point in point_list:
@@ -123,7 +124,10 @@ def date_string(markup):
 
 
 def color_to_num(color_string):
-    for i in range(0, len(color_string)):
-        color_string[i] = int(color_string[i])
-    tuple(color_string)
-    return Color(rgb=color_string).hex
+    try:
+        for i in range(0, len(color_string)):
+            color_string[i] = int(color_string[i])
+        tuple(color_string)
+        return Color(rgb=color_string).hex
+    except Exception:
+        return None
