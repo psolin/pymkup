@@ -146,7 +146,7 @@ class Pymkup:
                     # Adds the custom column where I can generate info
                     if item == 'Measurement':
                         chosen_columns['Measurement'] = 'Measurement'
-                        chosen_columns['Type'] = 'Type'
+                        chosen_columns['Measurement Unit'] = 'Measurement Unit'
                     elif item not in all_columns.values():
                         chosen_columns[item] = item
 
@@ -157,17 +157,11 @@ class Pymkup:
 
         data = {'markups': []}
 
-        # Handles Page Number
-        try:
-            if chosen_columns['Page Number']:
-                markup_index = self.get_markups_index()
-        except Exception:
-            pass
+        markup_index = self.get_markups_index()
 
         # Handles Page Label
         try:
             if chosen_columns['Page Label']:
-                markup_index = self.get_markups_index()
                 page_label_index = self.get_page_labels()
         except Exception:
             pass
@@ -215,17 +209,13 @@ class Pymkup:
                     elif column == 'Measurement':
                         measurements = measurement_col(markup)
                         row_dict['Measurement'] = measurements[0]
-                        row_dict['Type'] = measurements[1]
+                        row_dict['Measurement Unit'] = measurements[1]
                     elif column in color_columns:
                         row_dict[chosen_columns[column]] = color_to_num(markup[column])
-                    elif column == "Type":
+                    elif column == "Measurement Unit":
                         pass
-                    elif "Space" in column:
-                        try:
-                            spaces_join = '-'.join(markup_space(markup, markup_index[markup.NM], spaces_vertices))
-                            row_dict['Space'] = spaces_join
-                        except Exception:
-                            pass
+                    elif column == "Space":
+                        row_dict['Space'] = markup_space(markup, markup_index[markup.NM], spaces_vertices)
                     elif markup[column] is not None:
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
                     else:

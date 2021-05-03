@@ -1,7 +1,6 @@
 from fractions import Fraction
 from column_data import lf_columns
-from shapely.geometry import LineString
-from shapely.geometry import Point, Polygon
+from shapely.geometry import LineString, Point, Polygon
 from datetime import datetime
 from time import mktime
 from time import strptime
@@ -62,17 +61,17 @@ def measurement_col(markup):
             markup['/Contents']).split(' ')
         measurements.append([sf_measure[0], sf_measure[1]])
     elif markup['/IT'] == "/PolygonCount":
-        measurements.append([1, "ct"])
+        measurements.append([1, "Count"])
     elif markup['/IT'] in lf_columns:
         measurements.append([
             feet_inches_convert(content_hex_convert(
                 markup['/Contents'])),
-            'lf'])
+            'ft\' in\"'])
     elif markup['/IT'] == '/PolygonRadius':
         r_measure = content_hex_convert(markup['/Contents'])
         measurements.append([
             feet_inches_convert(r_measure),
-            'r ft'])
+            'ft\' in\"'])
     elif markup['/IT'] == '/PolygonVolume':
         sf_measure = content_hex_convert(
             markup['/Contents']).split(" ", 1)
@@ -80,7 +79,7 @@ def measurement_col(markup):
     elif markup['/IT'] == '/PolyLineAngle':
         measurements.append([
             content_hex_convert(markup['/Contents']),
-            'angle'])
+            '°'])
     elif markup.Subtype == '/PolyLine':
         markup_rect = [*zip(list(markup.Vertices)[::2],
                             list(markup.Vertices)[1::2])]
@@ -105,12 +104,12 @@ def markup_space(markup, page_index, spaces_vertices):
                 poly_points = list(tuple(sub) for sub in list(value))
                 poly_points = tuple_float(poly_points)
                 space_polygon = Polygon(poly_points)
-                true_check = 0
+                point_check = 0
                 for point in markup_rect:
                     if space_polygon.contains(Point(point)) is True:
-                        true_check += 1
-                    if true_check == len(poly_points):
-                        markup_spaces.append(key)
+                        point_check += 1
+                if float(point_check)/float(len(poly_points)) > 0.5:
+                    markup_spaces.append(key)
         return markup_spaces
     else:
         return

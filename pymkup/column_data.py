@@ -146,7 +146,7 @@ lf_columns = [
 
 custom_columns = [
     'Measurement',
-    'Type',
+    'Measurement Unit',
     'Page Label',
     'Page Number',
     'Space']
@@ -155,9 +155,10 @@ default_columns = {
     '/Subj': 'Subject',
     'Page Label': 'Page Label',
     'Page Number': 'Page Number',
+    '/C': 'Color',
     '/Label': 'Label',
     'Measurement': 'Measurement',
-    'Type': 'Type',
+    'Measurement Unit': 'Measurement Unit',
     '/CreationDate': 'Creation Date',
     '/T': 'Author',
     '/M': 'Date',
