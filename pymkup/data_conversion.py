@@ -91,8 +91,8 @@ def measurement_col(markup):
     return measurements[0]
 
 
-def markup_space(markup, page_index, spaces_vertices):
-    if markup['/Vertices']:
+def markup_space(markup, space_check, page_index, spaces_vertices):
+    if markup['/Vertices'] and space_check is True:
         markup_spaces = []
         # Convert markup.Rect to something more usable
         markup_rect = [*zip(list(markup.Vertices)[::2],

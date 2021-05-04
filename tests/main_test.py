@@ -23,3 +23,4 @@ def test_markup_returned_dict():
     columns += ['Page Number', 'Page Label', 'Measurement', 'Space']
     markup = x.markups(column_list=columns)
     assert 'markups' in markup
+    assert len(markup['markups']) == 13
