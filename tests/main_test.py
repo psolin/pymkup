@@ -10,14 +10,16 @@ def test_spaces_returned_dict():
     spaces = x.spaces()
     assert 'spaces' in spaces
 
+
 def test_spaces_returned_dict_vert():
     x = Pymkup(pytest.filename)
     spaces = x.spaces(output='vertices')
     assert type(spaces) == dict
 
+
 def test_markup_returned_dict():
     x = Pymkup(pytest.filename)
-    columns = ['Page Number', 'Page Label', 'Measurement', 'Space']
-    columns.append(x.get_columns().values())
+    columns = list(x.get_columns().values())
+    columns += ['Page Number', 'Page Label', 'Measurement', 'Space']
     markup = x.markups(column_list=columns)
     assert 'markups' in markup

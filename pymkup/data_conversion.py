@@ -112,7 +112,7 @@ def markup_space(markup, page_index, spaces_vertices):
                     markup_spaces.append(key)
         return markup_spaces
     else:
-        return
+        return []
 
 
 def date_string(markup):

@@ -119,13 +119,22 @@ no_mod = [
     '/Version',
     '/F',
     '/BS',
-    '/DS',
     '/BSIColumnData',
     '/Vertices',
     '/Rect',
     '/Version',
     '/BBMeasure',
     '/CA'
+]
+
+# markup[column][1:-1]
+parenthesis_drop = [
+    '/Subj',
+    '/T',
+    '/DS',
+    '/RC',
+    '/Label',
+    '/NM'
 ]
 
 # PDF Dates

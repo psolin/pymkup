@@ -216,12 +216,13 @@ class Pymkup:
                         pass
                     elif column == "Space":
                         row_dict['Space'] = markup_space(markup, markup_index[markup.NM], spaces_vertices)
-                    elif markup[column] is not None:
+                    elif column in parenthesis_drop:
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
+                    elif markup[column] is not None:
+                        row_dict[chosen_columns[column]] = markup[column]
                     else:
                         pass
                 else:
                     pass
-            if len(row_dict) > 0:
-                data['markups'].append(row_dict)
+            data['markups'].append(row_dict)
         return data
