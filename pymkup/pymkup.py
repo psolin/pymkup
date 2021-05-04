@@ -1,6 +1,6 @@
-from pdfrw import PdfReader
 from os.path import dirname, realpath
 from pathlib import Path
+from pdfrw import PdfReader
 from column_data import *
 from data_conversion import *
 
@@ -210,7 +210,10 @@ class Pymkup:
                         row_dict['Measurement'] = measurements[0]
                         row_dict['Measurement Unit'] = measurements[1]
                     elif column in color_columns:
-                        row_dict[chosen_columns[column]] = color_to_num(markup[column])
+                        if len(markup[column]) == 3:
+                            row_dict[chosen_columns[column]] = color_to_num(markup[column])
+                        else:
+                            row_dict[chosen_columns[column]] = markup[column]
                     elif column == "Measurement Unit":
                         pass
                     elif column == "Space":

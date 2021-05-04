@@ -1,10 +1,9 @@
-from fractions import Fraction
-from column_data import lf_columns
-from shapely.geometry import LineString, Point, Polygon
 from datetime import datetime
-from time import mktime
-from time import strptime
+from fractions import Fraction
+from time import mktime, strptime
 from colormap import Color
+from shapely.geometry import LineString, Point, Polygon
+from column_data import lf_columns
 
 
 def tuple_float(point_list):
@@ -19,13 +18,10 @@ def content_hex_convert(content):
     if content is None:
         return None
 
-    try:
-        if "feff" in content:
-            content = content.decode_hex()
-            content = content.decode('utf-16')
-            content = content.splitlines()[1]
-    except Exception:
-        pass
+    if "feff" in content:
+        content = content.decode_hex()
+        content = content.decode('utf-16')
+        content = content.splitlines()[1]
 
     # Remove the parenthesis
     if content[0] == "(":
@@ -59,7 +55,7 @@ def measurement_col(markup):
     if "sf" in str(content_hex_convert(markup['/Contents'])):
         sf_measure = content_hex_convert(
             markup['/Contents']).split(' ')
-        measurements.append([sf_measure[0], sf_measure[1]])
+        measurements.append([float(sf_measure[0]), sf_measure[1]])
     elif markup['/IT'] == "/PolygonCount":
         measurements.append([1, "Count"])
     elif markup['/IT'] in lf_columns:
@@ -75,7 +71,7 @@ def measurement_col(markup):
     elif markup['/IT'] == '/PolygonVolume':
         sf_measure = content_hex_convert(
             markup['/Contents']).split(" ", 1)
-        measurements.append([sf_measure[0], sf_measure[1]])
+        measurements.append([float(sf_measure[0]), sf_measure[1]])
     elif markup['/IT'] == '/PolyLineAngle':
         measurements.append([
             content_hex_convert(markup['/Contents']),
@@ -123,10 +119,7 @@ def date_string(markup):
 
 
 def color_to_num(color_string):
-    try:
-        for i in range(0, len(color_string)):
-            color_string[i] = int(color_string[i])
-        tuple(color_string)
-        return Color(rgb=color_string).hex
-    except Exception:
-        return None
+    for i in range(0, len(color_string)):
+        color_string[i] = int(color_string[i])
+    tuple(color_string)
+    return Color(rgb=color_string).hex
