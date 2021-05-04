@@ -1,5 +1,5 @@
 from pdfrw import PdfReader
-import os
+from os.path import dirname, realpath
 from pathlib import Path
 from column_data import *
 from data_conversion import *
@@ -9,7 +9,7 @@ class Pymkup:
     def __init__(self, file):
         try:
             self.file = file
-            self.inpfn = os.path.dirname(os.path.realpath(__file__)) + self.file
+            self.inpfn = dirname(realpath(__file__)) + self.file
             self.template_pdf = PdfReader(self.inpfn)
 
             # Checking if the PDF was authored by BB
@@ -114,6 +114,9 @@ class Pymkup:
 
     def spaces(self, output="dictionary"):
         spaces = self.get_all_spaces()
+        if spaces is None:
+            return {'spaces': []}
+
         page_labels = self.get_page_labels()
         data = {'spaces': []}
 
@@ -133,7 +136,7 @@ class Pymkup:
 
         # Get out of there if no markups
         if len(all_columns) == 0:
-            return ()
+            return {'markups': []}
 
         if column_list == "default":
             chosen_columns = default_columns
@@ -152,30 +155,26 @@ class Pymkup:
 
         chosen_columns_keys = list(chosen_columns.keys())
 
+        # Loading some data if these columns exist
         if 'Space' in chosen_columns_keys:
             spaces_vertices = self.spaces(output="vertices")
+            spaces_check = True if self.get_all_spaces() is not None else False
+
+        if 'Page Label' or 'Page Number' or 'Space' in chosen_columns_keys:
+            markup_index = self.get_markups_index()
+
+        if 'Page Label' in chosen_columns_keys:
+            page_label_index = self.get_page_labels()
 
         data = {'markups': []}
-
-        markup_index = self.get_markups_index()
-
-        # Handles Page Label
-        try:
-            if chosen_columns['Page Label']:
-                page_label_index = self.get_page_labels()
-        except Exception:
-            pass
 
         # Pull the data out
         for markup in self.get_markups_list():
             # Fresh row
             row_dict = {}
             for column in chosen_columns_keys:
-                # Too much confusion.
-                if markup['/Subj'] is None:
-                    break
-                elif ((markup[column]) or
-                      column in custom_columns):
+                # Too much confusion if no subject
+                if markup[column] is not None or column in custom_columns and markup['/Subj']:
                     if column == '/OC':
                         row_dict[chosen_columns['/OC']] \
                             = markup['/OC'].Name[1:-1]
@@ -215,7 +214,7 @@ class Pymkup:
                     elif column == "Measurement Unit":
                         pass
                     elif column == "Space":
-                        row_dict['Space'] = markup_space(markup, markup_index[markup.NM], spaces_vertices)
+                        row_dict['Space'] = markup_space(markup, spaces_check, markup_index[markup.NM], spaces_vertices)
                     elif column in parenthesis_drop:
                         row_dict[chosen_columns[column]] = markup[column][1:-1]
                     elif markup[column] is not None:
