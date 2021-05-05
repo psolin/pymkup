@@ -23,10 +23,6 @@ def content_hex_convert(content):
         content = content.decode('utf-16')
         content = content.splitlines()[1]
 
-    # Remove the parenthesis
-    if content[0] == "(":
-        content = content[1:-1]
-
     return content
 
 
@@ -34,7 +30,7 @@ def feet_inches_convert(text):
     feet, sep, inches = text.rpartition("\'")
     if sep != "\'":
         return ''
-    inches = (inches[1:-1])
+    inches = inches
     feet = float(feet)
     if ' ' in inches:
         inches_whole, inches_fract = inches.split(' ')
@@ -52,31 +48,31 @@ def feet_inches_convert(text):
 
 def measurement_col(markup):
     measurements = []
-    if "sf" in str(content_hex_convert(markup['/Contents'])):
+    if "sf" in str(content_hex_convert(markup['Contents'])):
         sf_measure = content_hex_convert(
-            markup['/Contents']).split(' ')
+            markup['Contents']).split(' ')
         measurements.append([float(sf_measure[0]), sf_measure[1]])
-    elif markup['/IT'] == "/PolygonCount":
+    elif markup['IT'] == "PolygonCount":
         measurements.append([1, "Count"])
-    elif markup['/IT'] in lf_columns:
+    elif markup['IT'] in lf_columns:
         measurements.append([
             feet_inches_convert(content_hex_convert(
-                markup['/Contents'])),
+                markup['Contents'])),
             'ft\' in\"'])
-    elif markup['/IT'] == '/PolygonRadius':
-        r_measure = content_hex_convert(markup['/Contents'])
+    elif markup['IT'] == 'PolygonRadius':
+        r_measure = content_hex_convert(markup['Contents'])
         measurements.append([
             feet_inches_convert(r_measure),
             'ft\' in\"'])
-    elif markup['/IT'] == '/PolygonVolume':
+    elif markup['IT'] == 'PolygonVolume':
         sf_measure = content_hex_convert(
-            markup['/Contents']).split(" ", 1)
+            markup['Contents']).split(" ", 1)
         measurements.append([float(sf_measure[0]), sf_measure[1]])
-    elif markup['/IT'] == '/PolyLineAngle':
+    elif markup['IT'] == 'PolyLineAngle':
         measurements.append([
-            content_hex_convert(markup['/Contents']),
+            content_hex_convert(markup['Contents']),
             '°'])
-    elif markup.Subtype == '/PolyLine':
+    elif markup.Subtype == 'PolyLine':
         markup_rect = [*zip(list(markup.Vertices)[::2],
                             list(markup.Vertices)[1::2])]
         markup_rect = tuple_float(markup_rect)
@@ -88,7 +84,7 @@ def measurement_col(markup):
 
 
 def markup_space(markup, space_check, page_index, spaces_vertices):
-    if markup['/Vertices'] and space_check is True:
+    if markup['Vertices'] and space_check is True:
         markup_spaces = []
         # Convert markup.Rect to something more usable
         markup_rect = [*zip(list(markup.Vertices)[::2],
@@ -112,7 +108,7 @@ def markup_space(markup, space_check, page_index, spaces_vertices):
 
 
 def date_string(markup):
-    datestring = markup[3:-8]
+    datestring = markup[2:-7]
     ts = strptime(datestring, "%Y%m%d%H%M%S")
     dt = datetime.fromtimestamp(mktime(ts))
     return dt

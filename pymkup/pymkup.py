@@ -1,6 +1,5 @@
 from os.path import dirname, realpath
-from pathlib import Path
-from pdfrw import PdfReader
+from pdfreader import PDFDocument
 from column_data import *
 from data_conversion import *
 
@@ -10,11 +9,12 @@ class Pymkup:
         try:
             self.file = file
             self.inpfn = dirname(realpath(__file__)) + self.file
-            self.template_pdf = PdfReader(self.inpfn)
-
+            self.fd = open(self.inpfn, "rb")
+            self.template_pdf = PDFDocument(self.fd)
             # Checking if the PDF was authored by BB
-            "Bluebeam" in self.template_pdf.Info.Creator
-            self.file_name = Path(self.inpfn).stem
+            "Bluebeam" in self.template_pdf.metadata['Creator']
+
+            self.all_pages = [p for p in self.template_pdf.pages()]
             self.spaces_path = {}
         except Exception:
             print(self.inpfn, "doesnt exist.")
@@ -25,25 +25,26 @@ class Pymkup:
         page_label_dict = {}
         # This will work if there are any page labels
         try:
-            page_num_list = self.template_pdf.Root.PageLabels.Nums
+            page_num_list = self.template_pdf.root.PageLabels.Nums
             for idx, page in enumerate(page_num_list[1::2]):
                 try:
-                    page_label_dict[idx] = page.P[1:-1]
+                    page_label_dict[idx] = page.P.decode("utf-8")
                 except Exception:
                     page_label_dict[idx] = "Page " + str(idx + 1)
         # Otherwise, do a mass naming scheme
         except Exception:
-            for idx, page in enumerate(self.template_pdf.pages):
+            for idx, page in enumerate(self.all_pages):
                 page_label_dict[idx] = "Page " + str(idx + 1)
+            pass
 
         return page_label_dict
 
     # Extracting the entire markups list
     def get_markups_list(self):
         markups_list = []
-        for idx, page in enumerate(self.template_pdf.pages):
+        for idx, page in enumerate(self.all_pages):
             try:
-                for num, annotation in enumerate(page.Annots):
+                for annotation in page.Annots:
                     markups_list.append(annotation)
             except Exception:
                 pass
@@ -52,7 +53,7 @@ class Pymkup:
     # Indexing the markups to their respective pages by UUID
     def get_markups_index(self):
         markups_index = {}
-        for idx, page in enumerate(self.template_pdf.pages):
+        for idx, page in enumerate(self.all_pages):
             try:
                 for num, annotation in enumerate(page.Annots):
                     markups_index[annotation.NM] = idx
@@ -60,7 +61,6 @@ class Pymkup:
                 pass
         return markups_index
 
-    # Extracting the current document's column/property lists
     def get_columns(self):
 
         columns_lookup = column_data
@@ -69,10 +69,10 @@ class Pymkup:
         # it into in a dictionary
         column_list = []
         column_dict = {}
-        for page in range(0, len(self.template_pdf.pages)):
+        for page in self.all_pages:
             try:
-                for columns in self.template_pdf.pages[page].Annots[0]:
-                    column_list.append(columns)
+                for column in page.Annots[0]:
+                    column_list.append(column)
             except Exception:
                 pass
 
@@ -85,11 +85,10 @@ class Pymkup:
 
         return column_dict
 
-    # Dump of all spaces by page
     def get_all_spaces(self):
         space_list = []
         space_dict = {}
-        for idx, page in enumerate(self.template_pdf.pages):
+        for idx, page in enumerate(self.all_pages):
             try:
                 for space in page.BSISpaces:
                     space_list.append(space)
@@ -99,13 +98,12 @@ class Pymkup:
             space_list = []
         return space_dict
 
-    # Iterates through the spaces dictionary
     def spacesdict(self, spaces, key, prevparent):
         for item in spaces:
             try:
-                self.spaces_path[key].append({item.Title[1:-1]: item.Path})
-                prevparent[item.Title[1:-1]] = {}
-                prevparent[item.Title[1:-1]] \
+                self.spaces_path[key].append({item.Title.decode("utf-8"): item.Path})
+                prevparent[item.Title.decode("utf-8")] = {}
+                prevparent[item.Title.decode("utf-8")] \
                     = self.spacesdict(item.Kids, key, {})
             except Exception:
                 pass
@@ -174,11 +172,11 @@ class Pymkup:
             row_dict = {}
             for column in chosen_columns_keys:
                 # Too much confusion if no subject
-                if markup[column] is not None or column in custom_columns and markup['/Subj']:
-                    if column == '/OC':
-                        row_dict[chosen_columns['/OC']] \
-                            = markup['/OC'].Name[1:-1]
-                    elif column == '/IT':
+                if markup.get(column, None) is not None or column in custom_columns and markup['Subj']:
+                    if column == 'OC':
+                        row_dict[chosen_columns['OC']] \
+                            = markup['OC'].Name.decode("utf-8")
+                    elif column == 'IT':
                         row_dict[chosen_columns[column]] = markup[column]
                     # Subject is needed to filter down results
                     elif column == 'Page Number':
@@ -192,16 +190,16 @@ class Pymkup:
                         row_dict[chosen_columns[column]] = markup[column][1:]
                     elif column in no_mod:
                         row_dict[chosen_columns[column]] = markup[column]
-                    elif column == '/DepthUnit':
+                    elif column == 'DepthUnit':
                         row_dict[chosen_columns[column]] = markup[column][0]
-                    elif column == '/Contents':
+                    elif column == 'Contents':
                         row_dict[chosen_columns[column]] \
                             = content_hex_convert(markup[column])
-                    elif column == '/AP':
+                    elif column == 'AP':
                         row_dict[chosen_columns[column]] = markup[column].N
                     elif column in pdf_dates:
-                        row_dict[chosen_columns[column]] = date_string(markup[column])
-                    elif column == '/MeasurementTypes':
+                        row_dict[chosen_columns[column]] = date_string(markup[column].decode("utf-8"))
+                    elif column == 'MeasurementTypes':
                         row_dict[chosen_columns[column]] \
                             = measurement_types[markup[column]]
                     # Handles imperial only for now
@@ -218,8 +216,8 @@ class Pymkup:
                         pass
                     elif column == "Space":
                         row_dict['Space'] = markup_space(markup, spaces_check, markup_index[markup.NM], spaces_vertices)
-                    elif column in parenthesis_drop:
-                        row_dict[chosen_columns[column]] = markup[column][1:-1]
+                    elif column in decode_col:
+                        row_dict[chosen_columns[column]] = markup[column].decode("utf-8")
                     elif markup[column] is not None:
                         row_dict[chosen_columns[column]] = markup[column]
                     else:
