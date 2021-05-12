@@ -1,8 +1,8 @@
 from datetime import datetime
 from fractions import Fraction
 from time import mktime, strptime
-from colormap import Color
-from shapely.geometry import LineString, Point, Polygon
+from matplotlib.colors import to_hex
+import matplotlib.patches as patches
 from column_data import lf_columns
 
 
@@ -18,10 +18,11 @@ def content_hex_convert(content):
     if content is None:
         return None
 
-    if "feff" in content:
-        content = content.decode_hex()
-        content = content.decode('utf-16')
+    if "FEFF" in content:
+        content = bytes.fromhex(content[4:])
+        content = str(content, 'ASCII')
         content = content.splitlines()[1]
+        content = content.replace('\x00', '')
 
     return content
 
@@ -73,11 +74,13 @@ def measurement_col(markup):
             content_hex_convert(markup['Contents']),
             '°'])
     elif markup.Subtype == 'PolyLine':
+        '''
         markup_rect = [*zip(list(markup.Vertices)[::2],
                             list(markup.Vertices)[1::2])]
         markup_rect = tuple_float(markup_rect)
         line = LineString(markup_rect)
-        measurements = [[line.length, 'length']]
+        '''
+        measurements = [[0, 'length']]
     else:
         pass
     return measurements[0]
@@ -95,10 +98,10 @@ def markup_space(markup, space_check, page_index, spaces_vertices):
             for key, value in space_vert.items():
                 poly_points = list(tuple(sub) for sub in list(value))
                 poly_points = tuple_float(poly_points)
-                space_polygon = Polygon(poly_points)
+                space_polygon = patches.Polygon(poly_points)
                 point_check = 0
                 for point in markup_rect:
-                    if space_polygon.contains(Point(point)) is True:
+                    if space_polygon.contains_point(point) is True:
                         point_check += 1
                 if float(point_check)/float(len(poly_points)) > 0.5:
                     markup_spaces.append(key)
@@ -117,5 +120,4 @@ def date_string(markup):
 def color_to_num(color_string):
     for i in range(0, len(color_string)):
         color_string[i] = int(color_string[i])
-    tuple(color_string)
-    return Color(rgb=color_string).hex
+    return to_hex(tuple(color_string))

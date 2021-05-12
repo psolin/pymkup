@@ -24,18 +24,12 @@ class Pymkup:
     def get_page_labels(self):
         page_label_dict = {}
         # This will work if there are any page labels
-        try:
-            page_num_list = self.template_pdf.root.PageLabels.Nums
-            for idx, page in enumerate(page_num_list[1::2]):
-                try:
-                    page_label_dict[idx] = page.P.decode("utf-8")
-                except Exception:
-                    page_label_dict[idx] = "Page " + str(idx + 1)
-        # Otherwise, do a mass naming scheme
-        except Exception:
-            for idx, page in enumerate(self.all_pages):
+        page_num_list = self.template_pdf.root.PageLabels.Nums
+        for idx, page in enumerate(page_num_list[1::2]):
+            if page.P is not None:
+                page_label_dict[idx] = page.P.decode("utf-8")
+            else:
                 page_label_dict[idx] = "Page " + str(idx + 1)
-            pass
 
         return page_label_dict
 
@@ -43,22 +37,18 @@ class Pymkup:
     def get_markups_list(self):
         markups_list = []
         for idx, page in enumerate(self.all_pages):
-            try:
+            if page.Annots is not None:
                 for annotation in page.Annots:
                     markups_list.append(annotation)
-            except Exception:
-                pass
         return markups_list
 
     # Indexing the markups to their respective pages by UUID
     def get_markups_index(self):
         markups_index = {}
         for idx, page in enumerate(self.all_pages):
-            try:
+            if len(page.Annots) > 0:
                 for num, annotation in enumerate(page.Annots):
                     markups_index[annotation.NM] = idx
-            except Exception:
-                pass
         return markups_index
 
     def get_columns(self):
@@ -70,11 +60,9 @@ class Pymkup:
         column_list = []
         column_dict = {}
         for page in self.all_pages:
-            try:
+            if len(page.Annots[0]) > 0:
                 for column in page.Annots[0]:
                     column_list.append(column)
-            except Exception:
-                pass
 
         # Remove dupes
         [i for n, i in enumerate(column_list) if i not in column_list[:n]]
@@ -89,11 +77,9 @@ class Pymkup:
         space_list = []
         space_dict = {}
         for idx, page in enumerate(self.all_pages):
-            try:
+            if len(page.BSISpaces) > 0:
                 for space in page.BSISpaces:
                     space_list.append(space)
-            except Exception:
-                pass
             space_dict[idx] = space_list
             space_list = []
         return space_dict

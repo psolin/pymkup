@@ -26,5 +26,5 @@ setup(
     ],
     packages=["pymkup"],
     include_package_data=True,
-    install_requires=["pdfrw", "shapely", "colormap", "easydev"]
+    install_requires=["pdfreader", "matplotlib"]
 )

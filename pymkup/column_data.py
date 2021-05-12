@@ -109,7 +109,7 @@ column_data = {
 # Group by data output formatting
 
 # markup[column][1:]
-first_slice = ['Type', 'CountStyle', 'Subtype']
+first_slice = ['CountStyle']
 
 # markup[column]
 no_mod = [
