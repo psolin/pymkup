@@ -94,7 +94,7 @@ def measurement_col(markup):
 
 
 def markup_space(markup, space_check, page_index, spaces_vertices):
-    if markup.get('Vertices', None) is not type(None) and space_check is True:
+    if markup.get('Vertices', None) is not None and space_check is True:
         markup_spaces = []
         # Convert markup.Rect to something more usable
         markup_rect = [*zip(list(markup.Vertices)[::2],

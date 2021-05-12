@@ -78,7 +78,7 @@ class Pymkup:
         space_list = []
         space_dict = {}
         for idx, page in enumerate(self.all_pages):
-            if page.BSISpaces != None:
+            if page.BSISpaces is not None:
                 for space in page.BSISpaces:
                     space_list.append(space)
             space_dict[idx] = space_list
@@ -209,4 +209,5 @@ class Pymkup:
                 else:
                     pass
             data['markups'].append(row_dict)
+            print(row_dict)
         return data
