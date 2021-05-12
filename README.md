@@ -53,18 +53,17 @@ x.markups(column_list=columns)
 ```
 
 ## Requirements
-- pdfrw is a library for scraping PDF data in Python and doing some other manipulaton.
-- shapely to build Spaces.
+- pdfrw for exposing the PDF tree.
+- matplotlob to build Spaces, convert colors.
 - tox to run virtualenv tests.
 - pytest for unit testing.
-- colormap/easydev for converting colors.
 
 ## Dev Testing
 
 ```bash
 pip install tox
 ```
-Once installed, run 'tox' from project root directory and it will run unit tests on multiple python installation. Tests are files within the /test folder.
+Once installed, run 'tox' from project root directory, and it will run unit tests on multiple python installation. Tests are files within the /test folder.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
