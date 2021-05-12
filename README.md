@@ -53,7 +53,7 @@ x.markups(column_list=columns)
 ```
 
 ## Requirements
-- pdfrw for exposing the PDF tree.
+- pdfreader for browsing the PDF tree.
 - matplotlob to build Spaces, convert colors.
 - tox to run virtualenv tests.
 - pytest for unit testing.
