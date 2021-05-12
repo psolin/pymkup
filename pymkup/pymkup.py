@@ -24,7 +24,7 @@ class Pymkup:
     def get_page_labels(self):
         page_label_dict = {}
         # This will work if there are any page labels
-        if self.template_pdf.root.PageLabel is not None:
+        if self.template_pdf.root.PageLabels is not None:
             page_num_list = self.template_pdf.root.PageLabels.Nums
             for idx, page in enumerate(page_num_list[1::2]):
                 if page.P is not None:
@@ -56,8 +56,6 @@ class Pymkup:
 
     def get_columns(self):
 
-        columns_lookup = column_data
-
         # Taking the current column list across pages in the file and putting
         # it into in a dictionary
         column_list = []
@@ -72,7 +70,7 @@ class Pymkup:
 
         # Create dictionary with original name and corrected names
         for column in column_list:
-            column_dict[column] = columns_lookup[column]
+            column_dict[column] = column_data[column]
 
         return column_dict
 
@@ -89,13 +87,11 @@ class Pymkup:
 
     def spacesdict(self, spaces, key, prevparent):
         for item in spaces:
-            try:
-                self.spaces_path[key].append({item.Title.decode("utf-8"): item.Path})
-                prevparent[item.Title.decode("utf-8")] = {}
+            self.spaces_path[key].append({item.Title.decode("utf-8"): item.Path})
+            prevparent[item.Title.decode("utf-8")] = {}
+            if item.Kids is not None:
                 prevparent[item.Title.decode("utf-8")] \
                     = self.spacesdict(item.Kids, key, {})
-            except Exception:
-                pass
 
         return prevparent
 
@@ -213,4 +209,5 @@ class Pymkup:
                 else:
                     pass
             data['markups'].append(row_dict)
+            print(row_dict)
         return data
