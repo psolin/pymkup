@@ -54,7 +54,7 @@ x.markups(column_list=columns)
 
 ## Requirements
 - pdfreader for browsing the PDF tree.
-- matplotlob to build Spaces, convert colors.
+- matplotlib to build Spaces, convert colors.
 - tox to run virtualenv tests.
 - pytest for unit testing.
 
