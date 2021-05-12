@@ -4,6 +4,7 @@ from time import mktime, strptime
 from matplotlib.colors import to_hex
 import matplotlib.patches as patches
 from column_data import lf_columns
+import pdfreader.types as t
 
 
 def tuple_float(point_list):
@@ -18,7 +19,10 @@ def content_hex_convert(content):
     if content is None:
         return None
 
-    if "FEFF" in content:
+    if type(content) == t.native.String:
+        content = content.decode("ISO-8859-1")
+
+    if "FEFF" in str(content):
         content = bytes.fromhex(content[4:])
         content = str(content, 'ASCII')
         content = content.splitlines()[1]
@@ -33,12 +37,15 @@ def feet_inches_convert(text):
         return ''
     inches = inches
     feet = float(feet)
+    inches = inches.replace("-", "")
+    inches = inches.replace('"', '')
     if ' ' in inches:
         inches_whole, inches_fract = inches.split(' ')
         a = Fraction(inches_fract)
         inches = (float(a) + float(inches_whole)) / 12
     elif inches == 0:
-        pass
+        a = Fraction(str(inches))
+        inches = float(a) / 12
     elif '/' in inches:
         a = Fraction(str(inches))
         inches = float(a) / 12
@@ -87,7 +94,7 @@ def measurement_col(markup):
 
 
 def markup_space(markup, space_check, page_index, spaces_vertices):
-    if markup['Vertices'] and space_check is True:
+    if markup.get('Vertices', None) is not type(None) and space_check is True:
         markup_spaces = []
         # Convert markup.Rect to something more usable
         markup_rect = [*zip(list(markup.Vertices)[::2],

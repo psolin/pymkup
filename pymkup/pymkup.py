@@ -24,13 +24,16 @@ class Pymkup:
     def get_page_labels(self):
         page_label_dict = {}
         # This will work if there are any page labels
-        page_num_list = self.template_pdf.root.PageLabels.Nums
-        for idx, page in enumerate(page_num_list[1::2]):
-            if page.P is not None:
-                page_label_dict[idx] = page.P.decode("utf-8")
-            else:
+        if self.template_pdf.root.PageLabel is not None:
+            page_num_list = self.template_pdf.root.PageLabels.Nums
+            for idx, page in enumerate(page_num_list[1::2]):
+                if page.P is not None:
+                    page_label_dict[idx] = page.P.decode("utf-8")
+                else:
+                    page_label_dict[idx] = "Page " + str(idx + 1)
+        else:
+            for idx, page in enumerate(self.all_pages):
                 page_label_dict[idx] = "Page " + str(idx + 1)
-
         return page_label_dict
 
     # Extracting the entire markups list
@@ -77,7 +80,7 @@ class Pymkup:
         space_list = []
         space_dict = {}
         for idx, page in enumerate(self.all_pages):
-            if len(page.BSISpaces) > 0:
+            if page.BSISpaces != None:
                 for space in page.BSISpaces:
                     space_list.append(space)
             space_dict[idx] = space_list
@@ -142,7 +145,7 @@ class Pymkup:
         # Loading some data if these columns exist
         if 'Space' in chosen_columns_keys:
             spaces_vertices = self.spaces(output="vertices")
-            spaces_check = True if self.get_all_spaces() is not None else False
+            space_check = any(self.get_all_spaces().values())
 
         if 'Page Label' or 'Page Number' or 'Space' in chosen_columns_keys:
             markup_index = self.get_markups_index()
@@ -171,9 +174,7 @@ class Pymkup:
                     elif column == 'Page Label':
                         if markup_index[markup.NM] is not None:
                             row_dict['Page Label'] \
-                                = page_label_index[markup_index[markup.NM]]
-                    elif column in first_slice:
-                        row_dict[chosen_columns[column]] = markup[column][1:]
+                                = page_label_index.get(markup_index[markup.NM], None)
                     elif column in no_mod:
                         row_dict[chosen_columns[column]] = markup[column]
                     elif column == 'DepthUnit':
@@ -190,9 +191,10 @@ class Pymkup:
                             = measurement_types[markup[column]]
                     # Handles imperial only for now
                     elif column == 'Measurement':
-                        measurements = measurement_col(markup)
-                        row_dict['Measurement'] = measurements[0]
-                        row_dict['Measurement Unit'] = measurements[1]
+                        if markup.get('Contents', None) is not None:
+                            measurements = measurement_col(markup)
+                            row_dict['Measurement'] = measurements[0]
+                            row_dict['Measurement Unit'] = measurements[1]
                     elif column in color_columns:
                         if len(markup[column]) == 3:
                             row_dict[chosen_columns[column]] = color_to_num(markup[column])
@@ -201,9 +203,9 @@ class Pymkup:
                     elif column == "Measurement Unit":
                         pass
                     elif column == "Space":
-                        row_dict['Space'] = markup_space(markup, spaces_check, markup_index[markup.NM], spaces_vertices)
+                        row_dict['Space'] = markup_space(markup, space_check, markup_index[markup.NM], spaces_vertices)
                     elif column in decode_col:
-                        row_dict[chosen_columns[column]] = markup[column].decode("utf-8")
+                        row_dict[chosen_columns[column]] = markup[column].decode("ISO-8859-1")
                     elif markup[column] is not None:
                         row_dict[chosen_columns[column]] = markup[column]
                     else:
