@@ -209,5 +209,4 @@ class Pymkup:
                 else:
                     pass
             data['markups'].append(row_dict)
-            print(row_dict)
         return data
