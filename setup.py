@@ -11,7 +11,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="pymkup",
-    version="0.5",
+    version="0.6",
     description="Accessing Bluebeam Revu PDF Data",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -26,5 +26,5 @@ setup(
     ],
     packages=["pymkup"],
     include_package_data=True,
-    install_requires=["pdfrw", "shapely", "colormap", "easydev"]
+    install_requires=["pdfreader", "matplotlib"]
 )

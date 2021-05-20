@@ -1,7 +1,5 @@
-pdfrw
-shapely
+pdfreader
 pytest >= 6.1.1
 tox
 pre-commit
-colormap
-easydev
+matplotlib
