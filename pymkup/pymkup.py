@@ -19,6 +19,11 @@ class Pymkup:
         except Exception:
             print(self.inpfn, "doesnt exist.")
 
+    def extended_columns():
+        all_custom_col = custom_columns
+        all_custom_col.remove("Measurement Unit")
+        return(all_custom_col)
+
     # Extract the page labels into a dictionary
     # This is broken for some files because of the hierarchy.
     def get_page_labels(self):
@@ -209,5 +214,4 @@ class Pymkup:
                 else:
                     pass
             data['markups'].append(row_dict)
-            print(row_dict)
         return data
