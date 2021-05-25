@@ -20,6 +20,6 @@ def test_spaces_returned_dict_vert():
 def test_markup_returned_dict():
     x = Pymkup(pytest.filename)
     columns = list(x.get_columns().values())
-    columns += ['Page Number', 'Page Label', 'Measurement', 'Space']
+    columns += Pymkup.extended_columns()
     markup = x.markups(column_list=columns)
     assert 'markups' in markup

@@ -41,7 +41,7 @@ First, you should identify the columns that are accessible in your file:
 x.get_columns().values()
 ```
 
-Second, you should review the extended columns here that can also be added:
+Second, you should review the extended columns that can also be added:
 ```python
 x.extended_columns()
 ```
