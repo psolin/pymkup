@@ -43,7 +43,7 @@ x.get_columns().values()
 
 Second, you should review the extended columns here that can also be added:
 ```python
-['Page Number', 'Page Label', 'Measurement', 'Space']
+x.extended_columns()
 ```
 
 Lastly, you can build the custom columns that you want to see returned:
